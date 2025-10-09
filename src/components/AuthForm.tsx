@@ -4,19 +4,26 @@ import { LogIn } from 'lucide-react';
 
 export default function AuthForm() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { signIn, signUp, resetPassword } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccess('');
     setLoading(true);
 
     try {
-      if (isSignUp) {
+      if (isForgotPassword) {
+        await resetPassword(email);
+        setSuccess('Password reset link sent to your email!');
+        setEmail('');
+      } else if (isSignUp) {
         await signUp(email, password);
       } else {
         await signIn(email, password);
@@ -49,6 +56,11 @@ export default function AuthForm() {
             {error}
           </div>
         )}
+        {success && (
+          <div className="bg-green-500/10 border border-green-500/30 text-green-400 p-3 rounded-lg text-sm">
+            {success}
+          </div>
+        )}
 
         <div>
           <label htmlFor="email" className="block text-sm font-medium text-slate-300 mb-2">
@@ -65,38 +77,73 @@ export default function AuthForm() {
           />
         </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
-            Password
-          </label>
-          <input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={6}
-            className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-500"
-            placeholder="••••••••"
-          />
-        </div>
+        {!isForgotPassword && (
+          <div>
+            <label htmlFor="password" className="block text-sm font-medium text-slate-300 mb-2">
+              Password
+            </label>
+            <input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={6}
+              className="w-full px-4 py-3 rounded-lg bg-slate-800 border border-slate-700 text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all placeholder-slate-500"
+              placeholder="••••••••"
+            />
+          </div>
+        )}
 
         <button
           type="submit"
           disabled={loading}
           className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 rounded-lg font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-blue-500/30"
         >
-          {loading ? 'Loading...' : isSignUp ? 'Sign Up' : 'Sign In'}
+          {loading ? 'Loading...' : isForgotPassword ? 'Send Reset Link' : isSignUp ? 'Sign Up' : 'Sign In'}
         </button>
 
-        <div className="text-center">
-          <button
-            type="button"
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-blue-400 hover:text-blue-300 font-medium"
-          >
-            {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
-          </button>
+        <div className="text-center space-y-2">
+          {!isForgotPassword && (
+            <div>
+              <button
+                type="button"
+                onClick={() => setIsForgotPassword(true)}
+                className="text-sm text-slate-400 hover:text-slate-300 font-medium"
+              >
+                Forgot Password?
+              </button>
+            </div>
+          )}
+          <div>
+            <button
+              type="button"
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setIsForgotPassword(false);
+                setError('');
+                setSuccess('');
+              }}
+              className="text-sm text-blue-400 hover:text-blue-300 font-medium"
+            >
+              {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
+            </button>
+          </div>
+          {isForgotPassword && (
+            <div>
+              <button
+                type="button"
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setError('');
+                  setSuccess('');
+                }}
+                className="text-sm text-slate-400 hover:text-slate-300 font-medium"
+              >
+                Back to Sign In
+              </button>
+            </div>
+          )}
         </div>
       </form>
     </div>
