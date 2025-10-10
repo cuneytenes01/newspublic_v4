@@ -365,7 +365,7 @@ export default function Sidebar({
                 e.stopPropagation();
                 onFetchTweets(null);
               }}
-              className={`absolute right-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-2 rounded-lg transition-all ${
+              className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg transition-all ${
                 selectedUserId === null
                   ? 'hover:bg-white/20 text-white'
                   : 'hover:bg-blue-100 text-blue-600'
@@ -442,7 +442,7 @@ export default function Sidebar({
                     e.stopPropagation();
                     onFetchTweets(user.id);
                   }}
-                  className={`opacity-0 group-hover:opacity-100 p-1.5 rounded-full transition-all ${
+                  className={`p-1.5 rounded-full transition-all ${
                     selectedUserId === user.id
                       ? 'hover:bg-white/20 text-white'
                       : 'hover:bg-purple-100 text-purple-600'
@@ -456,7 +456,7 @@ export default function Sidebar({
                     e.stopPropagation();
                     setEditingUserTags(user);
                   }}
-                  className={`opacity-0 group-hover:opacity-100 p-1.5 rounded-full transition-all ${
+                  className={`p-1.5 rounded-full transition-all ${
                     selectedUserId === user.id
                       ? 'hover:bg-white/20 text-white'
                       : 'hover:bg-blue-100 text-blue-600'
@@ -470,7 +470,7 @@ export default function Sidebar({
                     e.stopPropagation();
                     onRemoveUser(user.id);
                   }}
-                  className={`opacity-0 group-hover:opacity-100 p-1.5 rounded-full transition-all ${
+                  className={`p-1.5 rounded-full transition-all ${
                     selectedUserId === user.id
                       ? 'hover:bg-white/20 text-white'
                       : 'hover:bg-red-100 text-red-600'

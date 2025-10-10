@@ -541,7 +541,6 @@ export default function Dashboard() {
                   title={selectedUserId ? "Fetch tweets from selected user" : "Fetch tweets from all users"}
                   style={{ backgroundSize: '200% 100%' }}
                 >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
                   {syncing ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin relative z-10" />
@@ -549,7 +548,7 @@ export default function Dashboard() {
                     </>
                   ) : (
                     <>
-                      <RefreshCw className="w-5 h-5 relative z-10 group-hover:rotate-180 transition-transform duration-500" />
+                      <RefreshCw className="w-5 h-5 relative z-10" />
                       <span className="relative z-10">Fetch Tweets</span>
                     </>
                   )}
@@ -569,7 +568,7 @@ export default function Dashboard() {
                       'bg-gradient-to-br from-blue-400 to-purple-400'
                     }`}></div>
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border-2 border-gray-200 py-3 px-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-20">
+                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border-2 border-gray-200 py-3 px-2 hidden group-hover:block transition-all duration-200 z-20">
                     <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                     <button
                       onClick={() => setCardTheme('default')}
