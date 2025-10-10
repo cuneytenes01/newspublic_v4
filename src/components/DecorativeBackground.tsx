@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo, memo } from 'react';
 
 interface Star {
   id: number;
@@ -12,110 +12,100 @@ interface Star {
   brightness: number;
 }
 
-export default function DecorativeBackground() {
-  const [leftStars, setLeftStars] = useState<Star[]>([]);
-  const [middleStars, setMiddleStars] = useState<Star[]>([]);
-  const [rightStars, setRightStars] = useState<Star[]>([]);
+function DecorativeBackground() {
+  const colors = useMemo(() => [
+    'rgba(59, 130, 246, 1)',
+    'rgba(147, 51, 234, 1)',
+    'rgba(14, 165, 233, 1)',
+    'rgba(236, 72, 153, 1)',
+    'rgba(251, 191, 36, 1)',
+    'rgba(16, 185, 129, 1)',
+    'rgba(168, 85, 247, 1)',
+    'rgba(255, 255, 255, 1)',
+    'rgba(239, 246, 255, 1)',
+    'rgba(34, 197, 94, 1)',
+  ], []);
 
-  useEffect(() => {
-    const colors = [
-      'rgba(59, 130, 246, 1)',
-      'rgba(147, 51, 234, 1)',
-      'rgba(14, 165, 233, 1)',
-      'rgba(236, 72, 153, 1)',
-      'rgba(251, 191, 36, 1)',
-      'rgba(16, 185, 129, 1)',
-      'rgba(168, 85, 247, 1)',
-      'rgba(255, 255, 255, 1)',
-      'rgba(239, 246, 255, 1)',
-      'rgba(34, 197, 94, 1)',
-    ];
+  const animationTypes = useMemo(() => [
+    'twinkle',
+    'fast-twinkle',
+    'shimmer',
+    'pulse-star',
+  ] as const, []);
 
-    const animationTypes: ('twinkle' | 'fast-twinkle' | 'shimmer' | 'pulse-star')[] = [
-      'twinkle',
-      'fast-twinkle',
-      'shimmer',
-      'pulse-star',
-    ];
+  const stars = useMemo(() => {
+    const leftElems: Star[] = [];
+    const middleElems: Star[] = [];
+    const rightElems: Star[] = [];
 
-    const generateStars = () => {
-      const leftElems: Star[] = [];
-      const middleElems: Star[] = [];
-      const rightElems: Star[] = [];
+    for (let i = 0; i < 50; i++) {
+      const sizeCategory = Math.random();
+      let size;
+      if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
+      else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
+      else size = Math.random() * 4 + 16;
 
-      for (let i = 0; i < 100; i++) {
-        const sizeCategory = Math.random();
-        let size;
-        if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
-        else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
-        else size = Math.random() * 4 + 16;
+      leftElems.push({
+        id: i,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size,
+        delay: Math.random() * 5,
+        twinkleSpeed: Math.random() * 2 + 1.5,
+        animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        brightness: Math.random() * 0.4 + 0.8,
+      });
+    }
 
-        leftElems.push({
-          id: i,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size,
-          delay: Math.random() * 5,
-          twinkleSpeed: Math.random() * 2 + 1.5,
-          animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
-          color: colors[Math.floor(Math.random() * colors.length)],
-          brightness: Math.random() * 0.4 + 0.8,
-        });
-      }
+    for (let i = 0; i < 40; i++) {
+      const sizeCategory = Math.random();
+      let size;
+      if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
+      else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
+      else size = Math.random() * 4 + 16;
 
-      for (let i = 0; i < 80; i++) {
-        const sizeCategory = Math.random();
-        let size;
-        if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
-        else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
-        else size = Math.random() * 4 + 16;
+      middleElems.push({
+        id: i + 50,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size,
+        delay: Math.random() * 5,
+        twinkleSpeed: Math.random() * 2 + 1.5,
+        animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        brightness: Math.random() * 0.4 + 0.8,
+      });
+    }
 
-        middleElems.push({
-          id: i + 100,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size,
-          delay: Math.random() * 5,
-          twinkleSpeed: Math.random() * 2 + 1.5,
-          animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
-          color: colors[Math.floor(Math.random() * colors.length)],
-          brightness: Math.random() * 0.4 + 0.8,
-        });
-      }
+    for (let i = 0; i < 60; i++) {
+      const sizeCategory = Math.random();
+      let size;
+      if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
+      else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
+      else size = Math.random() * 4 + 16;
 
-      for (let i = 0; i < 120; i++) {
-        const sizeCategory = Math.random();
-        let size;
-        if (sizeCategory < 0.5) size = Math.random() * 4 + 8;
-        else if (sizeCategory < 0.8) size = Math.random() * 4 + 12;
-        else size = Math.random() * 4 + 16;
+      rightElems.push({
+        id: i + 90,
+        x: Math.random() * 100,
+        y: Math.random() * 100,
+        size,
+        delay: Math.random() * 5,
+        twinkleSpeed: Math.random() * 2 + 1.5,
+        animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
+        color: colors[Math.floor(Math.random() * colors.length)],
+        brightness: Math.random() * 0.4 + 0.8,
+      });
+    }
 
-        rightElems.push({
-          id: i + 180,
-          x: Math.random() * 100,
-          y: Math.random() * 100,
-          size,
-          delay: Math.random() * 5,
-          twinkleSpeed: Math.random() * 2 + 1.5,
-          animationType: animationTypes[Math.floor(Math.random() * animationTypes.length)],
-          color: colors[Math.floor(Math.random() * colors.length)],
-          brightness: Math.random() * 0.4 + 0.8,
-        });
-      }
-
-      setLeftStars(leftElems);
-      setMiddleStars(middleElems);
-      setRightStars(rightElems);
-    };
-
-    generateStars();
-  }, []);
+    return { leftStars: leftElems, middleStars: middleElems, rightStars: rightElems };
+  }, [colors, animationTypes]);
 
   return (
     <>
       <div className="fixed left-[230px] top-0 w-[250px] h-screen pointer-events-none overflow-visible z-0">
         <div className="absolute inset-0">
-          {leftStars.map((star) => {
+          {stars.leftStars.map((star) => {
             const baseColor = star.color;
             const rgb = baseColor.match(/\d+/g)?.slice(0, 3).join(', ') || '59, 130, 246';
             return (
@@ -131,6 +121,8 @@ export default function DecorativeBackground() {
                   animationDuration: `${star.twinkleSpeed}s`,
                   background: `radial-gradient(circle, rgba(${rgb}, ${star.brightness}) 0%, rgba(${rgb}, ${star.brightness * 0.8}) 30%, rgba(${rgb}, 0) 70%)`,
                   boxShadow: `0 0 ${star.size * 2}px rgba(${rgb}, ${star.brightness}), 0 0 ${star.size * 4}px rgba(${rgb}, ${star.brightness * 0.6}), 0 0 ${star.size * 6}px rgba(${rgb}, ${star.brightness * 0.3})`,
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
                 }}
               />
             );
@@ -278,7 +270,7 @@ export default function DecorativeBackground() {
 
       <div className="fixed left-[480px] top-0 w-[280px] h-screen pointer-events-none overflow-visible z-0">
         <div className="absolute inset-0">
-          {middleStars.map((star) => {
+          {stars.middleStars.map((star) => {
             const baseColor = star.color;
             const rgb = baseColor.match(/\d+/g)?.slice(0, 3).join(', ') || '59, 130, 246';
             return (
@@ -294,6 +286,8 @@ export default function DecorativeBackground() {
                   animationDuration: `${star.twinkleSpeed}s`,
                   background: `radial-gradient(circle, rgba(${rgb}, ${star.brightness}) 0%, rgba(${rgb}, ${star.brightness * 0.8}) 30%, rgba(${rgb}, 0) 70%)`,
                   boxShadow: `0 0 ${star.size * 2}px rgba(${rgb}, ${star.brightness}), 0 0 ${star.size * 4}px rgba(${rgb}, ${star.brightness * 0.6}), 0 0 ${star.size * 6}px rgba(${rgb}, ${star.brightness * 0.3})`,
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
                 }}
               />
             );
@@ -303,7 +297,7 @@ export default function DecorativeBackground() {
 
       <div className="fixed right-0 top-0 w-[35vw] h-screen pointer-events-none overflow-visible z-0">
         <div className="absolute inset-0">
-          {rightStars.map((star) => {
+          {stars.rightStars.map((star) => {
             const baseColor = star.color;
             const rgb = baseColor.match(/\d+/g)?.slice(0, 3).join(', ') || '59, 130, 246';
             return (
@@ -319,6 +313,8 @@ export default function DecorativeBackground() {
                   animationDuration: `${star.twinkleSpeed}s`,
                   background: `radial-gradient(circle, rgba(${rgb}, ${star.brightness}) 0%, rgba(${rgb}, ${star.brightness * 0.8}) 30%, rgba(${rgb}, 0) 70%)`,
                   boxShadow: `0 0 ${star.size * 2}px rgba(${rgb}, ${star.brightness}), 0 0 ${star.size * 4}px rgba(${rgb}, ${star.brightness * 0.6}), 0 0 ${star.size * 6}px rgba(${rgb}, ${star.brightness * 0.3})`,
+                  transform: 'translateZ(0)',
+                  backfaceVisibility: 'hidden',
                 }}
               />
             );
@@ -449,3 +445,5 @@ export default function DecorativeBackground() {
     </>
   );
 }
+
+export default memo(DecorativeBackground);

@@ -174,7 +174,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
               <button
-                onClick={() => setShowAuth(true)}
+                onClick={() => setShowAuthModal(true)}
                 className="group px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-lg transition-all duration-200 shadow-2xl shadow-purple-500/30 flex items-center gap-2"
               >
                 <span>Go to Dashboard</span>
@@ -354,7 +354,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 </ul>
 
                 <button
-                  onClick={() => setShowAuth(true)}
+                  onClick={() => setShowAuthModal(true)}
                   className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-medium transition-all"
                 >
                   Start Free
@@ -411,7 +411,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 </ul>
 
                 <button
-                  onClick={() => setShowAuth(true)}
+                  onClick={() => setShowAuthModal(true)}
                   className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-medium transition-all shadow-xl shadow-blue-500/30"
                 >
                   Start Pro Trial
@@ -462,7 +462,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
                 </ul>
 
                 <button
-                  onClick={() => setShowAuth(true)}
+                  onClick={() => setShowAuthModal(true)}
                   className="w-full py-3 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white rounded-xl font-medium transition-all"
                 >
                   Start Enterprise Trial
@@ -497,7 +497,7 @@ export default function LandingPage({ onEnter }: LandingPageProps) {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={() => setShowAuth(true)}
+                onClick={() => setShowAuthModal(true)}
                 className="px-10 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl font-semibold text-lg transition-all duration-200 shadow-2xl shadow-purple-500/30"
               >
                 Get Started Now
