@@ -1,5 +1,20 @@
 import { useState } from 'react';
-import { TrendingUp, TrendingDown, Users, DollarSign, ShoppingCart, Activity } from 'lucide-react';
+import {
+  TrendingUp,
+  TrendingDown,
+  Users,
+  DollarSign,
+  ShoppingCart,
+  Activity,
+  ExternalLink,
+  Search,
+  FileText,
+  Image,
+  BarChart2,
+  Link as LinkIcon,
+  CheckCircle,
+  Globe
+} from 'lucide-react';
 import {
   LineChart,
   Line,
@@ -123,15 +138,89 @@ export default function CMSDashboard() {
     { label: 'Bounce Rate', value: 'Average Rate', percentage: '(40.9%)' }
   ];
 
+  const menuItems = [
+    {
+      title: 'URL Status Monitoring',
+      icon: <ExternalLink className="w-5 h-5" />,
+      url: 'https://url-status-checker-9xd6.bolt.host',
+      isExternal: true
+    },
+    {
+      title: 'SEO Analysis',
+      icon: <Search className="w-5 h-5" />,
+      items: [
+        { name: 'Meta Tags Check', icon: <FileText className="w-4 h-4" /> },
+        { name: 'Keyword Density', icon: <BarChart2 className="w-4 h-4" /> },
+        { name: 'Page Speed', icon: <TrendingUp className="w-4 h-4" /> },
+        { name: 'Mobile Optimization', icon: <Globe className="w-4 h-4" /> }
+      ]
+    },
+    {
+      title: 'Content Management',
+      icon: <FileText className="w-5 h-5" />,
+      items: [
+        { name: 'Content Audit', icon: <CheckCircle className="w-4 h-4" /> },
+        { name: 'Duplicate Content', icon: <FileText className="w-4 h-4" /> },
+        { name: 'Broken Links', icon: <LinkIcon className="w-4 h-4" /> },
+        { name: 'Image Optimization', icon: <Image className="w-4 h-4" /> }
+      ]
+    }
+  ];
+
   return (
-    <div className="flex-1 overflow-y-auto bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50">
-      <div className="max-w-7xl mx-auto p-8">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
-            Dashboard
-          </h1>
-          <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
+    <div className="flex h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50">
+      <aside className="w-64 bg-white border-r border-gray-200 shadow-lg overflow-y-auto">
+        <div className="p-6">
+          <h2 className="text-xl font-bold text-gray-800 mb-6">Menu</h2>
+          <nav className="space-y-2">
+            {menuItems.map((item, index) => (
+              <div key={index}>
+                {item.isExternal ? (
+                  <a
+                    href={item.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-blue-50 hover:text-blue-600 rounded-lg transition-all group"
+                  >
+                    <span className="text-blue-500 group-hover:text-blue-600">{item.icon}</span>
+                    <span className="font-medium">{item.title}</span>
+                    <ExternalLink className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                ) : (
+                  <div>
+                    <div className="flex items-center gap-3 px-4 py-3 text-gray-700 hover:bg-gray-50 rounded-lg transition-all cursor-pointer">
+                      <span className="text-gray-600">{item.icon}</span>
+                      <span className="font-medium">{item.title}</span>
+                    </div>
+                    {item.items && (
+                      <div className="ml-4 mt-1 space-y-1">
+                        {item.items.map((subItem, subIndex) => (
+                          <button
+                            key={subIndex}
+                            className="flex items-center gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-gray-900 rounded-lg transition-all w-full text-left"
+                          >
+                            <span className="text-gray-400">{subItem.icon}</span>
+                            <span>{subItem.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </nav>
         </div>
+      </aside>
+
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-7xl mx-auto p-8">
+          <div className="mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent mb-2">
+              Dashboard
+            </h1>
+            <p className="text-gray-600">Welcome back! Here's what's happening with your platform.</p>
+          </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {stats.map((stat, index) => (
@@ -231,6 +320,7 @@ export default function CMSDashboard() {
               </div>
             ))}
           </div>
+        </div>
         </div>
       </div>
     </div>
