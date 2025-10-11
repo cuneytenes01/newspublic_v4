@@ -18,17 +18,28 @@ const AI_MODELS = [
 export default function ApiSettings({ onClose }: ApiSettingsProps) {
   const [apiKey, setApiKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('google/gemini-flash-1.5-latest');
+  const [summarizePrompt, setSummarizePrompt] = useState('Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.');
+  const [translatePrompt, setTranslatePrompt] = useState('You are a translator. Only provide the translation, nothing else.');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     const savedKey = localStorage.getItem('openrouter_api_key');
     const savedModel = localStorage.getItem('openrouter_model');
+    const savedSummarizePrompt = localStorage.getItem('openrouter_summarize_prompt');
+    const savedTranslatePrompt = localStorage.getItem('openrouter_translate_prompt');
+
     if (savedKey) {
       setApiKey(savedKey);
     }
     if (savedModel) {
       setSelectedModel(savedModel);
+    }
+    if (savedSummarizePrompt) {
+      setSummarizePrompt(savedSummarizePrompt);
+    }
+    if (savedTranslatePrompt) {
+      setTranslatePrompt(savedTranslatePrompt);
     }
   }, []);
 
@@ -50,6 +61,8 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
       if (response.ok) {
         localStorage.setItem('openrouter_api_key', apiKey.trim());
         localStorage.setItem('openrouter_model', selectedModel);
+        localStorage.setItem('openrouter_summarize_prompt', summarizePrompt);
+        localStorage.setItem('openrouter_translate_prompt', translatePrompt);
         setMessage('Settings saved successfully!');
         setTimeout(() => {
           onClose();
@@ -60,6 +73,8 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
     } catch (error) {
       localStorage.setItem('openrouter_api_key', apiKey.trim());
       localStorage.setItem('openrouter_model', selectedModel);
+      localStorage.setItem('openrouter_summarize_prompt', summarizePrompt);
+      localStorage.setItem('openrouter_translate_prompt', translatePrompt);
       setMessage('Settings saved (validation skipped)');
       setTimeout(() => {
         onClose();
@@ -72,8 +87,12 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
   const handleClear = () => {
     localStorage.removeItem('openrouter_api_key');
     localStorage.removeItem('openrouter_model');
+    localStorage.removeItem('openrouter_summarize_prompt');
+    localStorage.removeItem('openrouter_translate_prompt');
     setApiKey('');
     setSelectedModel('google/gemini-flash-1.5-latest');
+    setSummarizePrompt('Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.');
+    setTranslatePrompt('You are a translator. Only provide the translation, nothing else.');
     setMessage('Settings cleared');
   };
 
@@ -152,6 +171,38 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
             </select>
             <p className="text-xs text-gray-500 mt-2">
               Choose the AI model for translation and summarization
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Summarize Prompt (System Message)
+            </label>
+            <textarea
+              value={summarizePrompt}
+              onChange={(e) => setSummarizePrompt(e.target.value)}
+              rows={3}
+              placeholder="Örnek: Sen bir tweet analiz uzmanısın. Tweet'i Türkçe olarak özetle..."
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              AI'ya özet yaparken nasıl davranacağını söyleyin. Dil, ton, uzunluk gibi özelleştirmeler yapabilirsiniz.
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              Translate Prompt (System Message)
+            </label>
+            <textarea
+              value={translatePrompt}
+              onChange={(e) => setTranslatePrompt(e.target.value)}
+              rows={3}
+              placeholder="Örnek: You are a translator. Only provide the translation..."
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm resize-none"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              AI'ya çeviri yaparken nasıl davranacağını söyleyin. Sadece çeviri yapsın veya ek açıklama eklesin belirleyebilirsiniz.
             </p>
           </div>
 

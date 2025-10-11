@@ -255,6 +255,8 @@ export default function Dashboard() {
     try {
       const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
       const selectedModel = localStorage.getItem('openrouter_model') || 'google/gemini-flash-1.5-latest';
+      const summarizePrompt = localStorage.getItem('openrouter_summarize_prompt') || 'Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.';
+
       if (!apiKey) {
         alert('Please set your OpenRouter API key in settings');
         setShowApiSettings(true);
@@ -274,7 +276,7 @@ export default function Dashboard() {
           messages: [
             {
               role: 'system',
-              content: 'Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.',
+              content: summarizePrompt,
             },
             {
               role: 'user',
@@ -317,6 +319,8 @@ export default function Dashboard() {
     try {
       const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
       const selectedModel = localStorage.getItem('openrouter_model') || 'google/gemini-flash-1.5-latest';
+      const translatePrompt = localStorage.getItem('openrouter_translate_prompt') || 'You are a translator. Only provide the translation, nothing else.';
+
       if (!apiKey) {
         alert('Please set your OpenRouter API key in settings');
         setShowApiSettings(true);
@@ -327,8 +331,8 @@ export default function Dashboard() {
       const isTurkish = turkishChars.test(content);
 
       const systemPrompt = isTurkish
-        ? 'You are a translator. Translate the given Turkish text to English. Only provide the translation, nothing else.'
-        : 'You are a translator. Translate the given text to Turkish. Only provide the translation, nothing else.';
+        ? `${translatePrompt}\n\nTranslate the given Turkish text to English.`
+        : `${translatePrompt}\n\nTranslate the given text to Turkish.`;
 
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
