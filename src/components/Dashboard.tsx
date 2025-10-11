@@ -628,7 +628,7 @@ export default function Dashboard() {
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-6">
-              <div className="flex items-center gap-4 mb-6">
+              <div className="flex items-center gap-3 flex-wrap">
                 <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent whitespace-nowrap">
                   {selectedTagId
                     ? tags.find(t => t.id === selectedTagId)?.name || 'All Users'
@@ -636,21 +636,6 @@ export default function Dashboard() {
                     ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
                     : 'All Users'}
                 </h2>
-                <div className="flex-1 min-w-[250px] max-w-[400px]">
-                  <div className="relative">
-                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search tweets, users, or content..."
-                      className="w-full pl-12 pr-4 py-3.5 text-sm bg-white border-2 border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all shadow-sm hover:border-gray-300"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 flex-wrap">
                 <button
                   onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
                   disabled={syncing}
