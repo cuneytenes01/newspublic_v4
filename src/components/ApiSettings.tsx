@@ -13,6 +13,9 @@ const AI_MODELS = [
   { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', cost: '$3.00' },
   { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', cost: '$0.15' },
   { id: 'openai/gpt-4o', name: 'GPT-4o', cost: '$2.50' },
+  { id: 'perplexity/llama-3.1-sonar-small-128k-online', name: 'Llama 3.1 Sonar Small (Online)', cost: '$1.00' },
+  { id: 'perplexity/llama-3.1-sonar-large-128k-online', name: 'Llama 3.1 Sonar Large (Online)', cost: '$1.00' },
+  { id: 'perplexity/llama-3.1-sonar-huge-128k-online', name: 'Llama 3.1 Sonar Huge (Online)', cost: '$5.00' },
 ];
 
 export default function ApiSettings({ onClose }: ApiSettingsProps) {
