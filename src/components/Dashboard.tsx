@@ -6,7 +6,8 @@ import TweetCard from './TweetCard';
 import TrendingPage from './TrendingPage';
 import SavedTweetsPage from './SavedTweetsPage';
 import DecorativeBackground from './DecorativeBackground';
-import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Clock } from 'lucide-react';
+import ApiSettings from './ApiSettings';
+import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Clock, Settings } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -28,6 +29,7 @@ export default function Dashboard() {
   const [exporting, setExporting] = useState(false);
   const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
   const [timeUntilNextFetch, setTimeUntilNextFetch] = useState<number>(300);
+  const [showApiSettings, setShowApiSettings] = useState(false);
 
   useEffect(() => {
     loadTwitterUsers();
@@ -251,11 +253,18 @@ export default function Dashboard() {
 
   const handleSummarize = async (tweetId: string, content: string): Promise<string> => {
     try {
+      const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
+      if (!apiKey) {
+        alert('Please set your OpenRouter API key in settings');
+        setShowApiSettings(true);
+        throw new Error('API key not configured');
+      }
+
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'Twitter Monitoring App',
         },
@@ -298,6 +307,13 @@ export default function Dashboard() {
 
   const handleTranslate = async (tweetId: string, content: string): Promise<string> => {
     try {
+      const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
+      if (!apiKey) {
+        alert('Please set your OpenRouter API key in settings');
+        setShowApiSettings(true);
+        throw new Error('API key not configured');
+      }
+
       const turkishChars = /[ğüşıöçĞÜŞİÖÇ]/;
       const isTurkish = turkishChars.test(content);
 
@@ -309,7 +325,7 @@ export default function Dashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${apiKey}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'Twitter Monitoring App',
         },
@@ -586,6 +602,13 @@ export default function Dashboard() {
                 </button>
               </div>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowApiSettings(true)}
+                  className="p-3 bg-white border-2 border-gray-300 rounded-xl hover:border-blue-500 transition-all shadow-sm hover:shadow-md group"
+                  title="API Settings"
+                >
+                  <Settings className="w-5 h-5 text-gray-700 group-hover:text-blue-600 transition-colors" />
+                </button>
                 <div className="relative group">
                   <button
                     className="p-3 bg-white border-2 border-gray-300 rounded-xl hover:border-purple-500 transition-all shadow-sm hover:shadow-md"
@@ -846,6 +869,10 @@ export default function Dashboard() {
           )}
         </div>
       </div>
+      )}
+
+      {showApiSettings && (
+        <ApiSettings onClose={() => setShowApiSettings(false)} />
       )}
     </div>
   );
