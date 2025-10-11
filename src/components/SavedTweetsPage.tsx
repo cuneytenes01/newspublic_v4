@@ -69,6 +69,23 @@ export default function SavedTweetsPage({ onSummarize, onTranslate }: SavedTweet
     }
   };
 
+  const handleClearAll = async () => {
+    if (!confirm(`Are you sure you want to remove all ${savedTweets.length} saved tweets? This action cannot be undone.`)) return;
+
+    try {
+      const { error } = await supabase
+        .from('saved_tweets')
+        .delete()
+        .eq('user_id', user!.id);
+
+      if (error) throw error;
+      await loadSavedTweets();
+    } catch (err) {
+      console.error('Error clearing all saved tweets:', err);
+      alert('Failed to clear saved tweets');
+    }
+  };
+
   const handleCategoryChange = async (savedTweetId: string, newCategory: string) => {
     try {
       const { error } = await supabase
@@ -99,18 +116,29 @@ export default function SavedTweetsPage({ onSummarize, onTranslate }: SavedTweet
     <div className="flex-1 overflow-y-auto relative z-10">
       <div className="max-w-5xl mx-auto p-8">
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl">
-              <Bookmark className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-gradient-to-br from-amber-500 to-orange-500 rounded-2xl">
+                <Bookmark className="w-8 h-8 text-white" />
+              </div>
+              <div>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
+                  Saved Tweets
+                </h2>
+                <p className="text-gray-600 font-medium mt-1">
+                  {savedTweets.length} tweet{savedTweets.length !== 1 ? 's' : ''} saved for later
+                </p>
+              </div>
             </div>
-            <div>
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text text-transparent">
-                Saved Tweets
-              </h2>
-              <p className="text-gray-600 font-medium mt-1">
-                {savedTweets.length} tweet{savedTweets.length !== 1 ? 's' : ''} saved for later
-              </p>
-            </div>
+            {savedTweets.length > 0 && (
+              <button
+                onClick={handleClearAll}
+                className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-xl font-bold hover:from-red-600 hover:to-rose-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Trash2 className="w-5 h-5" />
+                Clear All
+              </button>
+            )}
           </div>
 
           <div className="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 rounded-2xl p-6 border border-amber-200">

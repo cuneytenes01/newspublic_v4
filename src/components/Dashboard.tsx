@@ -26,6 +26,8 @@ export default function Dashboard() {
   });
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
+  const [timeUntilNextFetch, setTimeUntilNextFetch] = useState<number>(300);
 
   useEffect(() => {
     loadTwitterUsers();
@@ -45,9 +47,24 @@ export default function Dashboard() {
       })
       .subscribe();
 
+    const autoFetchInterval = setInterval(async () => {
+      console.log('Auto-fetching tweets for all users...');
+      setLastFetchTime(new Date());
+      setTimeUntilNextFetch(300);
+      await handleFetchTweets(null);
+    }, 5 * 60 * 1000);
+
+    const countdownInterval = setInterval(() => {
+      setTimeUntilNextFetch((prev) => Math.max(0, prev - 1));
+    }, 1000);
+
+    setLastFetchTime(new Date());
+
     return () => {
       supabase.removeChannel(tweetsChannel);
       supabase.removeChannel(usersChannel);
+      clearInterval(autoFetchInterval);
+      clearInterval(countdownInterval);
     };
   }, []);
 
@@ -234,37 +251,23 @@ export default function Dashboard() {
 
   const handleSummarize = async (tweetId: string, content: string): Promise<string> => {
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/summarize-tweet`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Twitter Monitoring App',
         },
-        body: JSON.stringify({
-          model: 'qwen/qwen3-max',
-          messages: [
-            {
-              role: 'system',
-              content: 'Sen bir profesyonel tweet analiz uzmanısın. Her tweet için yapılandırılmış, detaylı ve okunabilir analizler üretiyorsun. Analizin aşağıdaki bölümleri içermeli:\n\n📌 ANA FİKİR\n(1-2 cümle ile net ve kısa özet)\n\n🔍 DETAYLI AÇIKLAMA\n(3-4 cümle, günlük hayattan somut örneklerle. Teknik terimleri basit dille açıkla)\n\n💡 ÖNEMLİ NOKTALAR\n• İlk önemli nokta\n• İkinci önemli nokta\n• Üçüncü önemli nokta\n(Her madde kısa ve öz olsun)\n\n🎯 ETKİ & SONUÇ\n(Bu bilgi neden önemli, kimleri ilgilendirir, ne gibi değişiklikler yaratabilir - 2-3 cümle)\n\nDikkat: Emoji kullan, net başlıklar koy, paragrafları ayır, okuması kolay olsun.',
-            },
-            {
-              role: 'user',
-              content: `Bu tweet hakkında yukarıdaki formatta detaylı bir analiz yap:\n\n"${content}"`,
-            },
-          ],
-          temperature: 0.7,
-          max_tokens: 1000,
-        }),
+        body: JSON.stringify({ text: content }),
       });
 
       if (!response.ok) {
-        throw new Error('API hatası');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'API hatası');
       }
 
       const data = await response.json();
-      const summary = data.choices[0].message.content;
+      const summary = data.summary;
 
       await supabase
         .from('tweets')
@@ -281,44 +284,23 @@ export default function Dashboard() {
 
   const handleTranslate = async (tweetId: string, content: string): Promise<string> => {
     try {
-      const turkishChars = /[ğüşıöçĞÜŞİÖÇ]/;
-      const isTurkish = turkishChars.test(content);
-
-      const systemPrompt = isTurkish
-        ? 'You are a translator. Translate the given Turkish text to English. Only provide the translation, nothing else.'
-        : 'You are a translator. Translate the given text to Turkish. Only provide the translation, nothing else.';
-
-      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-tweet`;
+      const response = await fetch(apiUrl, {
         method: 'POST',
         headers: {
+          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
-          'Authorization': 'Bearer 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',
-          'HTTP-Referer': window.location.origin,
-          'X-Title': 'Twitter Monitoring App',
         },
-        body: JSON.stringify({
-          model: 'google/gemini-2.5-flash-lite-preview-09-2025',
-          messages: [
-            {
-              role: 'system',
-              content: systemPrompt,
-            },
-            {
-              role: 'user',
-              content: content,
-            },
-          ],
-          temperature: 0.3,
-          max_tokens: 1000,
-        }),
+        body: JSON.stringify({ text: content }),
       });
 
       if (!response.ok) {
-        throw new Error('API hatası');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'API hatası');
       }
 
       const data = await response.json();
-      const translation = data.choices[0].message.content;
+      const translation = data.translation;
 
       await supabase
         .from('tweets')
@@ -530,9 +512,23 @@ export default function Dashboard() {
                       ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
                       : 'All Users'}
                   </h2>
-                  <p className="text-gray-600 font-medium">
-                    {filteredTweets.length} of {tweets.length} tweet{tweets.length !== 1 ? 's' : ''}
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-gray-600 font-medium">
+                      {filteredTweets.length} of {tweets.length} tweet{tweets.length !== 1 ? 's' : ''}
+                    </p>
+                    {lastFetchTime && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Clock className="w-4 h-4 text-blue-500" />
+                        <span className="text-gray-500 font-medium">
+                          Last scan: {Math.floor((Date.now() - lastFetchTime.getTime()) / 1000 / 60)} min ago
+                        </span>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-blue-600 font-semibold">
+                          Next scan in {Math.floor(timeUntilNextFetch / 60)}:{String(timeUntilNextFetch % 60).padStart(2, '0')}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}

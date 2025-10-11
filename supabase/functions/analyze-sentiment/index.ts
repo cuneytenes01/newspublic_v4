@@ -30,7 +30,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || "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";
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || "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";
 
     if (!OPENROUTER_API_KEY) {
       console.error('OPENROUTER_API_KEY not found in environment');

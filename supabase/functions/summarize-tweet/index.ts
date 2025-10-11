@@ -30,7 +30,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || "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";
+    const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || "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";
 
     if (!OPENROUTER_API_KEY) {
       console.error('OPENROUTER_API_KEY not found in environment');
@@ -47,19 +47,19 @@ Deno.serve(async (req: Request) => {
         "X-Title": "Twitter Monitoring App",
       },
       body: JSON.stringify({
-        model: "meta-llama/llama-3.1-8b-instruct:free",
+        model: "qwen/qwen3-max",
         messages: [
           {
             role: "system",
-            content: "Sen bir eğitim uzmanısın. Tweet'i çok basit ve anlaşılır Türkçe ile açıkla. Teknik terimleri sade dille anlat, mutlaka günlük hayattan örnekler ver. Hedef kitle teknik bilgisi olmayan okuyucular. 2-3 cümle ile özetle ve bir basit örnek ekle ki okuyucu daha iyi anlasın.",
+            content: "Sen bir profesyonel tweet analiz uzmanısın. Her tweet için yapılandırılmış, detaylı ve okunabilir analizler üretiyorsun. Analizin aşağıdaki bölümleri içermeli:\n\n📌 ANA FİKİR\n(1-2 cümle ile net ve kısa özet)\n\n🔍 DETAYLI AÇIKLAMA\n(3-4 cümle, günlük hayattan somut örneklerle. Teknik terimleri basit dille açıkla)\n\n💡 ÖNEMLİ NOKTALAR\n• İlk önemli nokta\n• İkinci önemli nokta\n• Üçüncü önemli nokta\n(Her madde kısa ve öz olsun)\n\n🎯 ETKİ & SONUÇ\n(Bu bilgi neden önemli, kimleri ilgilendirir, ne gibi değişiklikler yaratabilir - 2-3 cümle)\n\nDikkat: Emoji kullan, net başlıklar koy, paragrafları ayır, okuması kolay olsun.",
           },
           {
             role: "user",
-            content: `Bu tweet'i basit Türkçe ile açıkla ve mutlaka günlük hayattan örnekler ver:\n\n${text}`,
+            content: `Bu tweet hakkında yukarıdaki formatta detaylı bir analiz yap:\n\n\"${text}\"`,
           },
         ],
         temperature: 0.7,
-        max_tokens: 300,
+        max_tokens: 1000,
       }),
     });
 
