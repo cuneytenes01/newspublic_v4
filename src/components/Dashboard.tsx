@@ -627,143 +627,13 @@ export default function Dashboard() {
       <div className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-8 mb-6">
-              <div className="flex items-center gap-3 flex-wrap">
-                <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent whitespace-nowrap">
-                  {selectedTagId
-                    ? tags.find(t => t.id === selectedTagId)?.name || 'All Users'
-                    : selectedUserId
-                    ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
-                    : 'All Users'}
-                </h2>
-                <button
-                  onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
-                  disabled={syncing}
-                  className="px-6 py-3.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2.5 transform hover:scale-[1.02]"
-                >
-                  {syncing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                      <span>Fetching...</span>
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-5 h-5" />
-                      <span>Fetch Tweets</span>
-                    </>
-                  )}
-                </button>
-                <button
-                  onClick={() => setShowApiSettings(true)}
-                  className="px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group flex items-center gap-2"
-                  title="API Settings"
-                >
-                  <Settings className="w-5 h-5 text-gray-600 group-hover:text-blue-600 transition-colors" />
-                  <span className="text-sm font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Settings</span>
-                </button>
-
-                <div className="relative group">
-                  <button
-                    className="px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
-                    title="Card Theme"
-                  >
-                    <div className={`w-5 h-5 rounded-md shadow-sm ${
-                      cardTheme === 'warm' ? 'bg-gradient-to-br from-orange-400 to-amber-400' :
-                      cardTheme === 'cool' ? 'bg-gradient-to-br from-cyan-400 to-teal-400' :
-                      cardTheme === 'nature' ? 'bg-gradient-to-br from-green-400 to-emerald-400' :
-                      cardTheme === 'sunset' ? 'bg-gradient-to-br from-pink-400 to-rose-400' :
-                      'bg-gradient-to-br from-blue-400 to-cyan-400'
-                    }`}></div>
-                    <span className="text-sm font-semibold text-gray-700">Theme</span>
-                  </button>
-                  <div className="absolute left-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 hidden group-hover:block transition-all duration-200 z-20">
-                    <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
-                    <button
-                      onClick={() => setCardTheme('default')}
-                      className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'default' ? 'bg-blue-50 ring-2 ring-blue-500' : ''}`}
-                    >
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-400 to-cyan-400 shadow-sm"></div>
-                      <span className="font-semibold text-sm text-gray-700">Default</span>
-                    </button>
-                    <button
-                      onClick={() => setCardTheme('warm')}
-                      className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'warm' ? 'bg-orange-50 ring-2 ring-orange-500' : ''}`}
-                    >
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-orange-400 to-amber-400 shadow-sm"></div>
-                      <span className="font-semibold text-sm text-gray-700">Warm</span>
-                    </button>
-                    <button
-                      onClick={() => setCardTheme('cool')}
-                      className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'cool' ? 'bg-cyan-50 ring-2 ring-cyan-500' : ''}`}
-                    >
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-400 to-teal-400 shadow-sm"></div>
-                      <span className="font-semibold text-sm text-gray-700">Cool</span>
-                    </button>
-                    <button
-                      onClick={() => setCardTheme('nature')}
-                      className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'nature' ? 'bg-green-50 ring-2 ring-green-500' : ''}`}
-                    >
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-green-400 to-emerald-400 shadow-sm"></div>
-                      <span className="font-semibold text-sm text-gray-700">Nature</span>
-                    </button>
-                    <button
-                      onClick={() => setCardTheme('sunset')}
-                      className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'sunset' ? 'bg-pink-50 ring-2 ring-pink-500' : ''}`}
-                    >
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-400 to-rose-400 shadow-sm"></div>
-                      <span className="font-semibold text-sm text-gray-700">Sunset</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="relative">
-                  <button
-                    onClick={() => setShowExportMenu(!showExportMenu)}
-                    disabled={exporting}
-                    className="flex items-center gap-2 px-4 py-3.5 bg-white border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all shadow-sm hover:shadow-md disabled:opacity-50 group"
-                  >
-                    {exporting ? <Loader2 className="w-5 h-5 animate-spin text-gray-600" /> : <Download className="w-5 h-5 text-gray-600 group-hover:text-green-600 transition-colors" />}
-                    <span className="text-sm font-semibold text-gray-700 group-hover:text-green-600 transition-colors">Export</span>
-                  </button>
-                  {showExportMenu && (
-                    <div className="absolute left-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-20">
-                      <button
-                        onClick={exportToCSV}
-                        className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                      >
-                        <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                        <span className="font-medium text-sm text-gray-700">Export CSV</span>
-                      </button>
-                      <button
-                        onClick={exportToJSON}
-                        className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
-                      >
-                        <FileText className="w-4 h-4 text-blue-600" />
-                        <span className="font-medium text-sm text-gray-700">Export JSON</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {selectedUserId && (
-                  <button
-                    onClick={handleSyncTweets}
-                    disabled={syncing}
-                    className="flex items-center gap-2 px-5 py-3.5 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold hover:from-blue-700 hover:to-cyan-700 transition-all disabled:opacity-50 shadow-md hover:shadow-lg transform hover:scale-[1.02]"
-                  >
-                    <RefreshCw className={`w-5 h-5 ${syncing ? 'animate-spin' : ''}`} />
-                    <span className="text-sm">Sync</span>
-                  </button>
-                )}
-              </div>
-            </div>
 
             <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
               <div className="flex items-center gap-2 mb-4">
                 <Tag className="w-5 h-5 text-gray-600" />
                 <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
               </div>
-              <div className="flex flex-wrap items-center gap-2.5">
+              <div className="flex flex-wrap items-center gap-2.5 mb-6">
                 <button
                   onClick={() => {
                     setSelectedTagId(null);
@@ -819,6 +689,127 @@ export default function Dashboard() {
                     </button>
                   );
                 })}
+              </div>
+              <div className="flex items-center justify-between pt-4 border-t border-gray-200">
+                <div className="flex items-center gap-2">
+                  <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent whitespace-nowrap">
+                    {selectedTagId
+                      ? tags.find(t => t.id === selectedTagId)?.name || 'All Users'
+                      : selectedUserId
+                      ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
+                      : 'All Users'}
+                  </h2>
+                  <button
+                    onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
+                    disabled={syncing}
+                    className="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 transform hover:scale-[1.02]"
+                  >
+                    {syncing ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="text-sm">Fetching...</span>
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-4 h-4" />
+                        <span className="text-sm">Fetch Tweets</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowApiSettings(true)}
+                    className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group flex items-center gap-2"
+                    title="API Settings"
+                  >
+                    <Settings className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                    <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Settings</span>
+                  </button>
+
+                  <div className="relative group">
+                    <button
+                      className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                      title="Card Theme"
+                    >
+                      <div className={`w-4 h-4 rounded-md shadow-sm ${
+                        cardTheme === 'warm' ? 'bg-gradient-to-br from-orange-400 to-amber-400' :
+                        cardTheme === 'cool' ? 'bg-gradient-to-br from-cyan-400 to-teal-400' :
+                        cardTheme === 'nature' ? 'bg-gradient-to-br from-green-400 to-emerald-400' :
+                        cardTheme === 'sunset' ? 'bg-gradient-to-br from-pink-400 to-rose-400' :
+                        'bg-gradient-to-br from-blue-400 to-cyan-400'
+                      }`}></div>
+                      <span className="text-xs font-semibold text-gray-700">Theme</span>
+                    </button>
+                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 hidden group-hover:block transition-all duration-200 z-20">
+                      <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
+                      <button
+                        onClick={() => setCardTheme('default')}
+                        className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'default' ? 'bg-blue-50 ring-2 ring-blue-500' : ''}`}
+                      >
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-400 to-cyan-400 shadow-sm"></div>
+                        <span className="font-semibold text-sm text-gray-700">Default</span>
+                      </button>
+                      <button
+                        onClick={() => setCardTheme('warm')}
+                        className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'warm' ? 'bg-orange-50 ring-2 ring-orange-500' : ''}`}
+                      >
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-orange-400 to-amber-400 shadow-sm"></div>
+                        <span className="font-semibold text-sm text-gray-700">Warm</span>
+                      </button>
+                      <button
+                        onClick={() => setCardTheme('cool')}
+                        className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'cool' ? 'bg-cyan-50 ring-2 ring-cyan-500' : ''}`}
+                      >
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-400 to-teal-400 shadow-sm"></div>
+                        <span className="font-semibold text-sm text-gray-700">Cool</span>
+                      </button>
+                      <button
+                        onClick={() => setCardTheme('nature')}
+                        className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'nature' ? 'bg-green-50 ring-2 ring-green-500' : ''}`}
+                      >
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-green-400 to-emerald-400 shadow-sm"></div>
+                        <span className="font-semibold text-sm text-gray-700">Nature</span>
+                      </button>
+                      <button
+                        onClick={() => setCardTheme('sunset')}
+                        className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'sunset' ? 'bg-pink-50 ring-2 ring-pink-500' : ''}`}
+                      >
+                        <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-400 to-rose-400 shadow-sm"></div>
+                        <span className="font-semibold text-sm text-gray-700">Sunset</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowExportMenu(!showExportMenu)}
+                      disabled={exporting}
+                      className="flex items-center gap-2 px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-green-500 hover:bg-green-50 transition-all shadow-sm hover:shadow-md disabled:opacity-50 group"
+                    >
+                      {exporting ? <Loader2 className="w-4 h-4 animate-spin text-gray-600" /> : <Download className="w-4 h-4 text-gray-600 group-hover:text-green-600 transition-colors" />}
+                      <span className="text-xs font-semibold text-gray-700 group-hover:text-green-600 transition-colors">Export</span>
+                    </button>
+                    {showExportMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-20">
+                        <button
+                          onClick={exportToCSV}
+                          className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                        >
+                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                          <span className="font-medium text-sm text-gray-700">Export CSV</span>
+                        </button>
+                        <button
+                          onClick={exportToJSON}
+                          className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 text-blue-600" />
+                          <span className="font-medium text-sm text-gray-700">Export JSON</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
