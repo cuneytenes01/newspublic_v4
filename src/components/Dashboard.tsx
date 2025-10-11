@@ -831,49 +831,6 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {tweets.length > 0 && (
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border-2 border-blue-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-md">
-                      <TrendingUp className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.totalEngagement)}</p>
-                  <p className="text-xs font-semibold text-blue-700">Total Engagement</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border-2 border-red-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg shadow-md">
-                      <Heart className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgLikes)}</p>
-                  <p className="text-xs font-semibold text-red-700">Avg Likes</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-md">
-                      <Repeat2 className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgRetweets)}</p>
-                  <p className="text-xs font-semibold text-green-700">Avg Retweets</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border-2 border-violet-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg shadow-md">
-                      <MessageCircle className="w-4 h-4 text-white" />
-                    </div>
-                  </div>
-                  <p className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgReplies)}</p>
-                  <p className="text-xs font-semibold text-violet-700">Avg Replies</p>
-                </div>
-              </div>
-            )}
           </div>
 
           {error && (
