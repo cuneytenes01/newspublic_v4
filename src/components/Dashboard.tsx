@@ -7,7 +7,7 @@ import TrendingPage from './TrendingPage';
 import SavedTweetsPage from './SavedTweetsPage';
 import DecorativeBackground from './DecorativeBackground';
 import ApiSettings from './ApiSettings';
-import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Clock, Settings } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Settings } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -15,6 +15,7 @@ export default function Dashboard() {
   const [twitterUsers, setTwitterUsers] = useState<TwitterUser[]>([]);
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [syncing, setSyncing] = useState(false);
@@ -27,12 +28,13 @@ export default function Dashboard() {
   });
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
-  const [lastFetchTime, setLastFetchTime] = useState<Date | null>(null);
-  const [timeUntilNextFetch, setTimeUntilNextFetch] = useState<number>(300);
   const [showApiSettings, setShowApiSettings] = useState(false);
 
   useEffect(() => {
     loadTwitterUsers();
+  }, []);
+
+  useEffect(() => {
     loadTweets();
 
     const tweetsChannel = supabase
@@ -49,26 +51,11 @@ export default function Dashboard() {
       })
       .subscribe();
 
-    const autoFetchInterval = setInterval(async () => {
-      console.log('Auto-fetching tweets for all users...');
-      setLastFetchTime(new Date());
-      setTimeUntilNextFetch(300);
-      await handleFetchTweets(null);
-    }, 5 * 60 * 1000);
-
-    const countdownInterval = setInterval(() => {
-      setTimeUntilNextFetch((prev) => Math.max(0, prev - 1));
-    }, 1000);
-
-    setLastFetchTime(new Date());
-
     return () => {
       supabase.removeChannel(tweetsChannel);
       supabase.removeChannel(usersChannel);
-      clearInterval(autoFetchInterval);
-      clearInterval(countdownInterval);
     };
-  }, []);
+  }, [selectedUserId, selectedTagId]);
 
   const loadTwitterUsers = async () => {
     try {
@@ -99,6 +86,28 @@ export default function Dashboard() {
 
       if (selectedUserId) {
         query.eq('twitter_user_id', selectedUserId);
+      } else if (selectedTagId) {
+        const { data: userTagsData } = await supabase
+          .from('twitter_user_tags')
+          .select('twitter_user_id, user_tags(*)')
+          .eq('tag_id', selectedTagId)
+          .order('assigned_at', { ascending: true });
+
+        if (userTagsData && userTagsData.length > 0) {
+          const userIdsGroupedByUser = new Map<string, boolean>();
+          userTagsData.forEach((item: any) => {
+            if (!userIdsGroupedByUser.has(item.twitter_user_id)) {
+              userIdsGroupedByUser.set(item.twitter_user_id, true);
+            }
+          });
+
+          const userIds = Array.from(userIdsGroupedByUser.keys());
+          query.in('twitter_user_id', userIds);
+        } else {
+          setTweets([]);
+          setLoading(false);
+          return;
+        }
       }
 
       const { data, error } = await query;
@@ -555,6 +564,8 @@ export default function Dashboard() {
         currentPage={currentPage}
         onPageChange={setCurrentPage}
         onFetchTweets={handleFetchTweets}
+        selectedTagId={selectedTagId}
+        onSelectTag={setSelectedTagId}
       />
 
       {currentPage === 'trending' && (
@@ -583,23 +594,9 @@ export default function Dashboard() {
                       ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
                       : 'All Users'}
                   </h2>
-                  <div className="space-y-1">
-                    <p className="text-gray-600 font-medium">
-                      {filteredTweets.length} of {tweets.length} tweet{tweets.length !== 1 ? 's' : ''}
-                    </p>
-                    {lastFetchTime && (
-                      <div className="flex items-center gap-2 text-sm">
-                        <Clock className="w-4 h-4 text-blue-500" />
-                        <span className="text-gray-500 font-medium">
-                          Last scan: {Math.floor((Date.now() - lastFetchTime.getTime()) / 1000 / 60)} min ago
-                        </span>
-                        <span className="text-gray-400">•</span>
-                        <span className="text-blue-600 font-semibold">
-                          Next scan in {Math.floor(timeUntilNextFetch / 60)}:{String(timeUntilNextFetch % 60).padStart(2, '0')}
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <p className="text-gray-600 font-medium">
+                    {filteredTweets.length} of {tweets.length} tweet{tweets.length !== 1 ? 's' : ''}
+                  </p>
                 </div>
                 <button
                   onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { supabase, UserTag, TwitterUser } from '../lib/supabase';
-import { Tag, X, Check } from 'lucide-react';
+import { Tag, X, Check, ArrowUp, ArrowDown } from 'lucide-react';
 
 interface UserTagAssignmentProps {
   user: TwitterUser;
@@ -11,7 +11,7 @@ interface UserTagAssignmentProps {
 
 export default function UserTagAssignment({ user, onClose, onUpdate }: UserTagAssignmentProps) {
   const [availableTags, setAvailableTags] = useState<UserTag[]>([]);
-  const [assignedTagIds, setAssignedTagIds] = useState<Set<string>>(new Set());
+  const [assignedTags, setAssignedTags] = useState<UserTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -41,15 +41,17 @@ export default function UserTagAssignment({ user, onClose, onUpdate }: UserTagAs
         supabase.from('user_tags').select('*').order('name', { ascending: true }),
         supabase
           .from('twitter_user_tags')
-          .select('tag_id')
+          .select('*, user_tags(*)')
           .eq('twitter_user_id', user.id)
+          .order('assigned_at', { ascending: true })
       ]);
 
       if (tagsResult.error) throw tagsResult.error;
       if (assignedResult.error) throw assignedResult.error;
 
       setAvailableTags(tagsResult.data || []);
-      setAssignedTagIds(new Set(assignedResult.data?.map((t) => t.tag_id) || []));
+      const assigned = assignedResult.data?.map((t: any) => t.user_tags).filter(Boolean) || [];
+      setAssignedTags(assigned);
     } catch (err) {
       console.error('Error loading tags:', err);
     } finally {
@@ -57,15 +59,32 @@ export default function UserTagAssignment({ user, onClose, onUpdate }: UserTagAs
     }
   };
 
-  const toggleTag = (tagId: string) => {
-    setAssignedTagIds((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(tagId)) {
-        newSet.delete(tagId);
+  const toggleTag = (tag: UserTag) => {
+    setAssignedTags((prev) => {
+      const index = prev.findIndex(t => t.id === tag.id);
+      if (index >= 0) {
+        return prev.filter(t => t.id !== tag.id);
       } else {
-        newSet.add(tagId);
+        return [...prev, tag];
       }
-      return newSet;
+    });
+  };
+
+  const moveTagUp = (index: number) => {
+    if (index === 0) return;
+    setAssignedTags((prev) => {
+      const newTags = [...prev];
+      [newTags[index - 1], newTags[index]] = [newTags[index], newTags[index - 1]];
+      return newTags;
+    });
+  };
+
+  const moveTagDown = (index: number) => {
+    if (index === assignedTags.length - 1) return;
+    setAssignedTags((prev) => {
+      const newTags = [...prev];
+      [newTags[index], newTags[index + 1]] = [newTags[index + 1], newTags[index]];
+      return newTags;
     });
   };
 
@@ -78,10 +97,11 @@ export default function UserTagAssignment({ user, onClose, onUpdate }: UserTagAs
         .delete()
         .eq('twitter_user_id', user.id);
 
-      if (assignedTagIds.size > 0) {
-        const insertData = Array.from(assignedTagIds).map((tagId) => ({
+      if (assignedTags.length > 0) {
+        const insertData = assignedTags.map((tag, index) => ({
           twitter_user_id: user.id,
-          tag_id: tagId
+          tag_id: tag.id,
+          assigned_at: new Date(Date.now() + index * 1000).toISOString()
         }));
 
         const { error } = await supabase
@@ -158,39 +178,84 @@ export default function UserTagAssignment({ user, onClose, onUpdate }: UserTagAs
               <p className="text-gray-500 text-sm mt-1">Create tags first in the tag management panel</p>
             </div>
           ) : (
-            <div className="space-y-2">
-              <p className="text-sm font-bold text-gray-600 mb-3">Select tags for this user:</p>
-              {availableTags.map((tag) => (
-                <button
-                  key={tag.id}
-                  onClick={() => toggleTag(tag.id)}
-                  className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all ${
-                    assignedTagIds.has(tag.id)
-                      ? 'border-current shadow-md'
-                      : 'border-gray-200 hover:border-gray-300'
-                  }`}
-                  style={{
-                    borderColor: assignedTagIds.has(tag.id) ? tag.color : undefined
-                  }}
-                >
-                  <div
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: tag.color }}
-                  >
-                    {assignedTagIds.has(tag.id) ? (
-                      <Check className="w-5 h-5 text-white" />
-                    ) : (
-                      <Tag className="w-5 h-5 text-white" />
-                    )}
+            <div className="space-y-6">
+              <div>
+                <p className="text-sm font-bold text-gray-600 mb-3">Assigned Tags (drag to reorder):</p>
+                {assignedTags.length === 0 ? (
+                  <p className="text-gray-500 text-sm italic py-4 text-center">No tags assigned yet</p>
+                ) : (
+                  <div className="space-y-2">
+                    {assignedTags.map((tag, index) => (
+                      <div
+                        key={tag.id}
+                        className="flex items-center gap-2 p-3 rounded-xl border-2 border-current shadow-md"
+                        style={{ borderColor: tag.color }}
+                      >
+                        <div className="flex flex-col gap-1">
+                          <button
+                            onClick={() => moveTagUp(index)}
+                            disabled={index === 0}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowUp className="w-3 h-3 text-gray-600" />
+                          </button>
+                          <button
+                            onClick={() => moveTagDown(index)}
+                            disabled={index === assignedTags.length - 1}
+                            className="p-1 hover:bg-gray-100 rounded disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                          >
+                            <ArrowDown className="w-3 h-3 text-gray-600" />
+                          </button>
+                        </div>
+                        <div
+                          className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
+                          style={{ backgroundColor: tag.color }}
+                        >
+                          <Tag className="w-5 h-5 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <p className="font-bold text-gray-900">{tag.name}</p>
+                          {index === 0 && (
+                            <p className="text-xs text-gray-500 mt-0.5">Primary tag (shown in list)</p>
+                          )}
+                        </div>
+                        <button
+                          onClick={() => toggleTag(tag)}
+                          className="p-2 hover:bg-red-50 rounded-lg transition-colors text-red-600"
+                        >
+                          <X className="w-5 h-5" />
+                        </button>
+                      </div>
+                    ))}
                   </div>
-                  <div className="flex-1 text-left">
-                    <p className="font-bold text-gray-900">{tag.name}</p>
-                    {tag.description && (
-                      <p className="text-xs text-gray-500">{tag.description}</p>
-                    )}
-                  </div>
-                </button>
-              ))}
+                )}
+              </div>
+
+              <div>
+                <p className="text-sm font-bold text-gray-600 mb-3">Available Tags:</p>
+                <div className="space-y-2">
+                  {availableTags.filter(tag => !assignedTags.find(t => t.id === tag.id)).map((tag) => (
+                    <button
+                      key={tag.id}
+                      onClick={() => toggleTag(tag)}
+                      className="w-full flex items-center gap-3 p-3 rounded-xl border-2 border-gray-200 hover:border-gray-300 transition-all"
+                    >
+                      <div
+                        className="w-10 h-10 rounded-xl flex items-center justify-center"
+                        style={{ backgroundColor: tag.color }}
+                      >
+                        <Tag className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1 text-left">
+                        <p className="font-bold text-gray-900">{tag.name}</p>
+                        {tag.description && (
+                          <p className="text-xs text-gray-500">{tag.description}</p>
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
           )}
         </div>
