@@ -627,6 +627,66 @@ export default function Dashboard() {
       <div className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
+            <div className="bg-white rounded-2xl shadow-lg border-3 border-red-500 p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Tag className="w-5 h-5 text-gray-600" />
+                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedTagId(null);
+                    setSelectedUserId(null);
+                  }}
+                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                    selectedTagId === null
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    All Users
+                  </div>
+                </button>
+                {tags.map((tag) => {
+                  const usersWithThisTag = twitterUsers.filter((user) => {
+                    const userTagList = userTags.get(user.id) || [];
+                    return userTagList.length > 0 && userTagList[0].id === tag.id;
+                  });
+
+                  if (usersWithThisTag.length === 0) return null;
+
+                  return (
+                    <button
+                      key={tag.id}
+                      onClick={() => {
+                        setSelectedTagId(tag.id);
+                        setSelectedUserId(null);
+                      }}
+                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                        selectedTagId === tag.id
+                          ? 'text-white shadow-md'
+                          : 'hover:opacity-80'
+                      }`}
+                      style={{
+                        backgroundColor: selectedTagId === tag.id ? tag.color : `${tag.color}20`,
+                        color: selectedTagId === tag.id ? 'white' : tag.color
+                      }}
+                    >
+                      <Tag className="w-4 h-4" />
+                      {tag.name}
+                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                        selectedTagId === tag.id ? 'bg-white/20' : 'bg-white'
+                      }`}>
+                        {usersWithThisTag.length}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -757,66 +817,6 @@ export default function Dashboard() {
                   </button>
                 )}
               </div>
-
-              <div className="mt-6 pt-6 border-t border-gray-200">
-                <div className="flex items-center gap-3 mb-4">
-                  <Tag className="w-5 h-5 text-gray-600" />
-                  <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => {
-                      setSelectedTagId(null);
-                      setSelectedUserId(null);
-                    }}
-                    className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                      selectedTagId === null
-                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                    }`}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      All Users
-                    </div>
-                  </button>
-                  {tags.map((tag) => {
-                    const usersWithThisTag = twitterUsers.filter((user) => {
-                      const userTagList = userTags.get(user.id) || [];
-                      return userTagList.length > 0 && userTagList[0].id === tag.id;
-                    });
-
-                    if (usersWithThisTag.length === 0) return null;
-
-                    return (
-                      <button
-                        key={tag.id}
-                        onClick={() => {
-                          setSelectedTagId(tag.id);
-                          setSelectedUserId(null);
-                        }}
-                        className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-                          selectedTagId === tag.id
-                            ? 'text-white shadow-md'
-                            : 'hover:opacity-80'
-                        }`}
-                        style={{
-                          backgroundColor: selectedTagId === tag.id ? tag.color : `${tag.color}20`,
-                          color: selectedTagId === tag.id ? 'white' : tag.color
-                        }}
-                      >
-                        <Tag className="w-4 h-4" />
-                        {tag.name}
-                        <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-                          selectedTagId === tag.id ? 'bg-white/20' : 'bg-white'
-                        }`}>
-                          {usersWithThisTag.length}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
 
             <div className="mb-6 bg-white rounded-2xl p-4 border border-gray-200 shadow-sm">
@@ -832,24 +832,6 @@ export default function Dashboard() {
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
                     />
                   </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <select
-                    value={sortBy}
-                    onChange={(e) => setSortBy(e.target.value as 'newest' | 'popular' | 'engagement')}
-                    className="px-4 py-2.5 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-medium"
-                  >
-                    <option value="newest">Newest First</option>
-                    <option value="popular">Most Popular</option>
-                    <option value="engagement">Most Engaged</option>
-                  </select>
-                  <button
-                    onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-                    className="p-2.5 border border-gray-300 rounded-xl hover:bg-gray-50 transition-colors"
-                    title={sortOrder === 'desc' ? 'Descending' : 'Ascending'}
-                  >
-                    {sortOrder === 'desc' ? <SortDesc className="w-5 h-5" /> : <SortAsc className="w-5 h-5" />}
-                  </button>
                 </div>
               </div>
             </div>
