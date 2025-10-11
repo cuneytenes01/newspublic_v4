@@ -47,19 +47,19 @@ Deno.serve(async (req: Request) => {
         "X-Title": "Twitter Monitoring App",
       },
       body: JSON.stringify({
-        model: "qwen/qwen3-max",
+        model: "meta-llama/llama-3.1-8b-instruct:free",
         messages: [
           {
             role: "system",
-            content: "Sen bir profesyonel tweet analiz uzmanısın. Her tweet için yapılandırılmış, detaylı ve okunabilir analizler üretiyorsun. Analizin aşağıdaki bölümleri içermeli:\n\n📌 ANA FİKİR\n(1-2 cümle ile net ve kısa özet)\n\n🔍 DETAYLI AÇIKLAMA\n(3-4 cümle, günlük hayattan somut örneklerle. Teknik terimleri basit dille açıkla)\n\n💡 ÖNEMLİ NOKTALAR\n• İlk önemli nokta\n• İkinci önemli nokta\n• Üçüncü önemli nokta\n(Her madde kısa ve öz olsun)\n\n🎯 ETKİ & SONUÇ\n(Bu bilgi neden önemli, kimleri ilgilendirir, ne gibi değişiklikler yaratabilir - 2-3 cümle)\n\nDikkat: Emoji kullan, net başlıklar koy, paragrafları ayır, okuması kolay olsun.",
+            content: "Sen bir tweet analiz uzmanısın. Tweet'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.",
           },
           {
             role: "user",
-            content: `Bu tweet hakkında yukarıdaki formatta detaylı bir analiz yap:\n\n\"${text}\"`,
+            content: `Bu tweet'i Türkçe özetle:\n\n\"${text}\"`,
           },
         ],
         temperature: 0.7,
-        max_tokens: 1000,
+        max_tokens: 300,
       }),
     });
 

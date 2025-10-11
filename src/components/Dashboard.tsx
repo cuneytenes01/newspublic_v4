@@ -251,23 +251,37 @@ export default function Dashboard() {
 
   const handleSummarize = async (tweetId: string, content: string): Promise<string> => {
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/summarize-tweet`;
-      const response = await fetch(apiUrl, {
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Twitter Monitoring App',
         },
-        body: JSON.stringify({ text: content }),
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          messages: [
+            {
+              role: 'system',
+              content: 'Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.',
+            },
+            {
+              role: 'user',
+              content: `Bu tweet'i Türkçe özetle:\n\n"${content}"`,
+            },
+          ],
+          temperature: 0.7,
+          max_tokens: 300,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'API hatası');
+        throw new Error('API hatası');
       }
 
       const data = await response.json();
-      const summary = data.summary;
+      const summary = data.choices[0].message.content;
 
       await supabase
         .from('tweets')
@@ -284,23 +298,44 @@ export default function Dashboard() {
 
   const handleTranslate = async (tweetId: string, content: string): Promise<string> => {
     try {
-      const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/translate-tweet`;
-      const response = await fetch(apiUrl, {
+      const turkishChars = /[ğüşıöçĞÜŞİÖÇ]/;
+      const isTurkish = turkishChars.test(content);
+
+      const systemPrompt = isTurkish
+        ? 'You are a translator. Translate the given Turkish text to English. Only provide the translation, nothing else.'
+        : 'You are a translator. Translate the given text to Turkish. Only provide the translation, nothing else.';
+
+      const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY}`,
+          'HTTP-Referer': window.location.origin,
+          'X-Title': 'Twitter Monitoring App',
         },
-        body: JSON.stringify({ text: content }),
+        body: JSON.stringify({
+          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          messages: [
+            {
+              role: 'system',
+              content: systemPrompt,
+            },
+            {
+              role: 'user',
+              content: content,
+            },
+          ],
+          temperature: 0.3,
+          max_tokens: 1000,
+        }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'API hatası');
+        throw new Error('API hatası');
       }
 
       const data = await response.json();
-      const translation = data.translation;
+      const translation = data.choices[0].message.content;
 
       await supabase
         .from('tweets')
