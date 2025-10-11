@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TrendingUp, Twitter, Youtube, LayoutGrid as Layout, LogOut } from 'lucide-react';
 import Dashboard from './Dashboard';
+import CMSDashboard from './CMSDashboard';
 import { useAuth } from '../contexts/AuthContext';
 
 type Page = 'dashboard' | 'twitter' | 'youtube';
@@ -77,7 +78,7 @@ export default function MainApp() {
       </header>
 
       <main className="pt-16">
-        {currentPage === 'dashboard' && <DashboardOverview />}
+        {currentPage === 'dashboard' && <CMSDashboard />}
         {currentPage === 'twitter' && <Dashboard />}
         {currentPage === 'youtube' && <YoutubeView />}
       </main>
