@@ -286,11 +286,18 @@ export default function Dashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('API hatası');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('OpenRouter API Error:', response.status, errorData);
+        throw new Error(`API hatası (${response.status}): ${errorData.error?.message || 'Bilinmeyen hata'}`);
       }
 
       const data = await response.json();
-      const summary = data.choices[0].message.content;
+      console.log('OpenRouter response:', data);
+      const summary = data.choices?.[0]?.message?.content;
+
+      if (!summary) {
+        throw new Error('API yanıt formatı hatalı');
+      }
 
       await supabase
         .from('tweets')
@@ -347,11 +354,18 @@ export default function Dashboard() {
       });
 
       if (!response.ok) {
-        throw new Error('API hatası');
+        const errorData = await response.json().catch(() => ({}));
+        console.error('OpenRouter API Error:', response.status, errorData);
+        throw new Error(`API hatası (${response.status}): ${errorData.error?.message || 'Bilinmeyen hata'}`);
       }
 
       const data = await response.json();
-      const translation = data.choices[0].message.content;
+      console.log('OpenRouter response:', data);
+      const translation = data.choices?.[0]?.message?.content;
+
+      if (!translation) {
+        throw new Error('API yanıt formatı hatalı');
+      }
 
       await supabase
         .from('tweets')
