@@ -269,7 +269,7 @@ export default function Dashboard() {
           'X-Title': 'Twitter Monitoring App',
         },
         body: JSON.stringify({
-          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          model: 'google/gemini-flash-1.5',
           messages: [
             {
               role: 'system',
@@ -337,7 +337,7 @@ export default function Dashboard() {
           'X-Title': 'Twitter Monitoring App',
         },
         body: JSON.stringify({
-          model: 'meta-llama/llama-3.1-8b-instruct:free',
+          model: 'google/gemini-flash-1.5',
           messages: [
             {
               role: 'system',
