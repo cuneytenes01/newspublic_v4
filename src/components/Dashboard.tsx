@@ -254,6 +254,7 @@ export default function Dashboard() {
   const handleSummarize = async (tweetId: string, content: string): Promise<string> => {
     try {
       const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
+      const selectedModel = localStorage.getItem('openrouter_model') || 'google/gemini-flash-1.5-latest';
       if (!apiKey) {
         alert('Please set your OpenRouter API key in settings');
         setShowApiSettings(true);
@@ -269,7 +270,7 @@ export default function Dashboard() {
           'X-Title': 'Twitter Monitoring App',
         },
         body: JSON.stringify({
-          model: 'google/gemini-flash-1.5-latest',
+          model: selectedModel,
           messages: [
             {
               role: 'system',
@@ -315,6 +316,7 @@ export default function Dashboard() {
   const handleTranslate = async (tweetId: string, content: string): Promise<string> => {
     try {
       const apiKey = localStorage.getItem('openrouter_api_key') || import.meta.env.VITE_OPENROUTER_API_KEY;
+      const selectedModel = localStorage.getItem('openrouter_model') || 'google/gemini-flash-1.5-latest';
       if (!apiKey) {
         alert('Please set your OpenRouter API key in settings');
         setShowApiSettings(true);
@@ -337,7 +339,7 @@ export default function Dashboard() {
           'X-Title': 'Twitter Monitoring App',
         },
         body: JSON.stringify({
-          model: 'google/gemini-flash-1.5-latest',
+          model: selectedModel,
           messages: [
             {
               role: 'system',

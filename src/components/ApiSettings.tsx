@@ -5,15 +5,30 @@ interface ApiSettingsProps {
   onClose: () => void;
 }
 
+const AI_MODELS = [
+  { id: 'google/gemini-flash-1.5-latest', name: 'Gemini Flash 1.5 Latest', cost: '~$0.00002' },
+  { id: 'google/gemini-flash-1.5', name: 'Gemini Flash 1.5', cost: '$0.075' },
+  { id: 'google/gemini-pro-1.5', name: 'Gemini Pro 1.5', cost: '$1.25' },
+  { id: 'anthropic/claude-3-haiku', name: 'Claude 3 Haiku', cost: '$0.25' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', cost: '$3.00' },
+  { id: 'openai/gpt-4o-mini', name: 'GPT-4o Mini', cost: '$0.15' },
+  { id: 'openai/gpt-4o', name: 'GPT-4o', cost: '$2.50' },
+];
+
 export default function ApiSettings({ onClose }: ApiSettingsProps) {
   const [apiKey, setApiKey] = useState('');
+  const [selectedModel, setSelectedModel] = useState('google/gemini-flash-1.5-latest');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
 
   useEffect(() => {
     const savedKey = localStorage.getItem('openrouter_api_key');
+    const savedModel = localStorage.getItem('openrouter_model');
     if (savedKey) {
       setApiKey(savedKey);
+    }
+    if (savedModel) {
+      setSelectedModel(savedModel);
     }
   }, []);
 
@@ -34,7 +49,8 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
 
       if (response.ok) {
         localStorage.setItem('openrouter_api_key', apiKey.trim());
-        setMessage('API key saved successfully!');
+        localStorage.setItem('openrouter_model', selectedModel);
+        setMessage('Settings saved successfully!');
         setTimeout(() => {
           onClose();
         }, 1500);
@@ -43,7 +59,8 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
       }
     } catch (error) {
       localStorage.setItem('openrouter_api_key', apiKey.trim());
-      setMessage('API key saved (validation skipped)');
+      localStorage.setItem('openrouter_model', selectedModel);
+      setMessage('Settings saved (validation skipped)');
       setTimeout(() => {
         onClose();
       }, 1500);
@@ -54,8 +71,10 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
 
   const handleClear = () => {
     localStorage.removeItem('openrouter_api_key');
+    localStorage.removeItem('openrouter_model');
     setApiKey('');
-    setMessage('API key cleared');
+    setSelectedModel('google/gemini-flash-1.5-latest');
+    setMessage('Settings cleared');
   };
 
   return (
@@ -113,6 +132,26 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
             />
             <p className="text-xs text-gray-500 mt-2">
               Your API key is stored locally in your browser and never sent to our servers
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
+              AI Model
+            </label>
+            <select
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm bg-white"
+            >
+              {AI_MODELS.map((model) => (
+                <option key={model.id} value={model.id}>
+                  {model.name} ({model.cost})
+                </option>
+              ))}
+            </select>
+            <p className="text-xs text-gray-500 mt-2">
+              Choose the AI model for translation and summarization
             </p>
           </div>
 
