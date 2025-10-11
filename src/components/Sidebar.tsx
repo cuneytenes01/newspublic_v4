@@ -352,71 +352,11 @@ export default function Sidebar({
           )}
 
         <div className="space-y-2">
-          <div className="mb-4">
-            <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Categories</p>
-            <div className="space-y-1">
-              <button
-                onClick={() => {
-                  onSelectTag(null);
-                  onSelectUser(null);
-                }}
-                className={`w-full text-left px-4 py-2.5 rounded-xl font-bold transition-all flex items-center gap-2 text-sm ${
-                  selectedTagId === null
-                    ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
-                    : 'text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Users className="w-4 h-4" />
-                All Users
-              </button>
-              {tags.map((tag) => {
-                const usersWithThisTag = twitterUsers.filter((user) => {
-                  const userTagList = userTags.get(user.id) || [];
-                  return userTagList.length > 0 && userTagList[0].id === tag.id;
-                });
-
-                if (usersWithThisTag.length === 0) return null;
-
-                return (
-                  <button
-                    key={tag.id}
-                    onClick={() => {
-                      onSelectTag(tag.id);
-                      onSelectUser(null);
-                    }}
-                    className={`w-full text-left px-4 py-2.5 rounded-xl font-bold transition-all flex items-center justify-between gap-2 text-sm ${
-                      selectedTagId === tag.id
-                        ? 'text-white shadow-md'
-                        : 'hover:bg-gray-100'
-                    }`}
-                    style={{
-                      backgroundColor: selectedTagId === tag.id ? tag.color : 'transparent',
-                      color: selectedTagId === tag.id ? 'white' : tag.color
-                    }}
-                  >
-                    <div className="flex items-center gap-2">
-                      <Tag className="w-4 h-4" />
-                      {tag.name}
-                    </div>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-bold ${
-                      selectedTagId === tag.id ? 'bg-white/20' : 'bg-gray-100'
-                    }`}
-                    style={{ color: selectedTagId === tag.id ? 'white' : tag.color }}
-                    >
-                      {usersWithThisTag.length}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Users</p>
           <div className="relative group">
             <button
               onClick={() => onSelectUser(null)}
               className={`w-full text-left px-4 py-3.5 rounded-xl font-bold transition-all flex items-center gap-3 ${
-                selectedUserId === null && selectedTagId === null
+                selectedUserId === null
                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, TwitterUser, Tweet } from '../lib/supabase';
+import { supabase, TwitterUser, Tweet, UserTag } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
 import TweetCard from './TweetCard';
@@ -7,7 +7,7 @@ import TrendingPage from './TrendingPage';
 import SavedTweetsPage from './SavedTweetsPage';
 import DecorativeBackground from './DecorativeBackground';
 import ApiSettings from './ApiSettings';
-import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Settings } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Settings, Tag } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -16,6 +16,8 @@ export default function Dashboard() {
   const [tweets, setTweets] = useState<Tweet[]>([]);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [selectedTagId, setSelectedTagId] = useState<string | null>(null);
+  const [tags, setTags] = useState<UserTag[]>([]);
+  const [userTags, setUserTags] = useState<Map<string, UserTag[]>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [syncing, setSyncing] = useState(false);
@@ -32,6 +34,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadTwitterUsers();
+    loadTags();
+    loadUserTags();
   }, []);
 
   useEffect(() => {
@@ -69,6 +73,43 @@ export default function Dashboard() {
     } catch (err: any) {
       console.error('Error loading users:', err);
       setError(err.message);
+    }
+  };
+
+  const loadTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('user_tags')
+        .select('*')
+        .order('name', { ascending: true });
+
+      if (error) throw error;
+      setTags(data || []);
+    } catch (err) {
+      console.error('Error loading tags:', err);
+    }
+  };
+
+  const loadUserTags = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('twitter_user_tags')
+        .select('*, user_tags(*)')
+        .order('assigned_at', { ascending: true });
+
+      if (error) throw error;
+
+      const tagMap = new Map<string, UserTag[]>();
+      data?.forEach((item: any) => {
+        if (item.user_tags) {
+          const existing = tagMap.get(item.twitter_user_id) || [];
+          tagMap.set(item.twitter_user_id, [...existing, item.user_tags]);
+        }
+      });
+
+      setUserTags(tagMap);
+    } catch (err) {
+      console.error('Error loading user tags:', err);
     }
   };
 
@@ -584,41 +625,40 @@ export default function Dashboard() {
 
       {currentPage === 'timeline' && (
       <div className="flex-1 overflow-y-auto relative z-10">
-        <div className="max-w-5xl mx-auto p-8">
+        <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <div className="flex items-center gap-4">
+            <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
+              <div className="flex items-center justify-between mb-6">
                 <div>
-                  <h2 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-2">
-                    {selectedUserId
+                  <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent">
+                    {selectedTagId
+                      ? tags.find(t => t.id === selectedTagId)?.name || 'All Users'
+                      : selectedUserId
                       ? `@${twitterUsers.find(u => u.id === selectedUserId)?.username || ''}`
                       : 'All Users'}
                   </h2>
-                  <p className="text-gray-600 font-medium">
+                  <p className="text-gray-600 font-medium mt-1">
                     {filteredTweets.length} of {tweets.length} tweet{tweets.length !== 1 ? 's' : ''}
                   </p>
                 </div>
-                <button
-                  onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
-                  disabled={syncing}
-                  className="group relative px-6 py-3.5 bg-gradient-to-r from-blue-500 via-cyan-500 to-blue-500 bg-size-200 bg-pos-0 hover:bg-pos-100 text-white rounded-full transition-all duration-500 shadow-lg hover:shadow-xl hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center gap-2.5 font-bold text-sm overflow-hidden"
-                  title={selectedUserId ? "Fetch tweets from selected user" : "Fetch tweets from all users"}
-                  style={{ backgroundSize: '200% 100%' }}
-                >
-                  {syncing ? (
-                    <>
-                      <Loader2 className="w-5 h-5 animate-spin relative z-10" />
-                      <span className="relative z-10">Fetching...</span>
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="w-5 h-5 relative z-10" />
-                      <span className="relative z-10">Fetch Tweets</span>
-                    </>
-                  )}
-                </button>
-              </div>
-              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
+                    disabled={syncing}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                  >
+                    {syncing ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Fetching...
+                      </>
+                    ) : (
+                      <>
+                        <RefreshCw className="w-5 h-5" />
+                        Fetch Tweets
+                      </>
+                    )}
+                  </button>
                 <button
                   onClick={() => setShowApiSettings(true)}
                   className="p-3 bg-white border-2 border-gray-300 rounded-xl hover:border-blue-500 transition-all shadow-sm hover:shadow-md group"
@@ -678,25 +718,25 @@ export default function Dashboard() {
                     </button>
                   </div>
                 </div>
-                <div className="relative">
-                  <button
-                    onClick={() => setShowExportMenu(!showExportMenu)}
-                    disabled={exporting}
-                    className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-xl hover:border-green-500 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
-                  >
-                    {exporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
-                    <span className="font-semibold">Export</span>
-                  </button>
-                  {showExportMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-10">
-                      <button
-                        onClick={exportToCSV}
-                        className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3 transition-colors"
-                      >
-                        <FileSpreadsheet className="w-4 h-4 text-green-600" />
-                        <span className="font-medium">Export CSV</span>
-                      </button>
-                      <button
+                  <div className="relative">
+                    <button
+                      onClick={() => setShowExportMenu(!showExportMenu)}
+                      disabled={exporting}
+                      className="flex items-center gap-2 px-4 py-3 bg-white border-2 border-gray-300 rounded-xl hover:border-green-500 transition-all shadow-sm hover:shadow-md disabled:opacity-50"
+                    >
+                      {exporting ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
+                      <span className="font-semibold">Export</span>
+                    </button>
+                    {showExportMenu && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-200 py-2 z-10">
+                        <button
+                          onClick={exportToCSV}
+                          className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3 transition-colors"
+                        >
+                          <FileSpreadsheet className="w-4 h-4 text-green-600" />
+                          <span className="font-medium">Export CSV</span>
+                        </button>
+                        <button
                         onClick={exportToJSON}
                         className="w-full px-4 py-2 text-left hover:bg-gray-100 flex items-center gap-3 transition-colors"
                       >
@@ -716,6 +756,66 @@ export default function Dashboard() {
                     Sync Tweets
                   </button>
                 )}
+              </div>
+
+              <div className="mt-6 pt-6 border-t border-gray-200">
+                <div className="flex items-center gap-3 mb-4">
+                  <Tag className="w-5 h-5 text-gray-600" />
+                  <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => {
+                      setSelectedTagId(null);
+                      setSelectedUserId(null);
+                    }}
+                    className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                      selectedTagId === null
+                        ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      All Users
+                    </div>
+                  </button>
+                  {tags.map((tag) => {
+                    const usersWithThisTag = twitterUsers.filter((user) => {
+                      const userTagList = userTags.get(user.id) || [];
+                      return userTagList.length > 0 && userTagList[0].id === tag.id;
+                    });
+
+                    if (usersWithThisTag.length === 0) return null;
+
+                    return (
+                      <button
+                        key={tag.id}
+                        onClick={() => {
+                          setSelectedTagId(tag.id);
+                          setSelectedUserId(null);
+                        }}
+                        className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                          selectedTagId === tag.id
+                            ? 'text-white shadow-md'
+                            : 'hover:opacity-80'
+                        }`}
+                        style={{
+                          backgroundColor: selectedTagId === tag.id ? tag.color : `${tag.color}20`,
+                          color: selectedTagId === tag.id ? 'white' : tag.color
+                        }}
+                      >
+                        <Tag className="w-4 h-4" />
+                        {tag.name}
+                        <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                          selectedTagId === tag.id ? 'bg-white/20' : 'bg-white'
+                        }`}>
+                          {usersWithThisTag.length}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
 
@@ -885,6 +985,7 @@ export default function Dashboard() {
             </div>
           )}
         </div>
+      </div>
       </div>
       )}
 
