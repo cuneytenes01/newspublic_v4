@@ -627,78 +627,6 @@ export default function Dashboard() {
       <div className="flex-1 overflow-y-auto relative z-10">
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
-            <div className="bg-white rounded-2xl shadow-lg border-3 border-red-500 p-6 mb-6">
-              <div className="flex items-center gap-3 mb-4">
-                <Tag className="w-5 h-5 text-gray-600" />
-                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
-              </div>
-              <div className="flex flex-wrap items-center gap-2">
-                <button
-                  onClick={() => {
-                    setSelectedTagId(null);
-                    setSelectedUserId(null);
-                  }}
-                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                    selectedTagId === null
-                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    All Users
-                  </div>
-                </button>
-                {tags.map((tag) => {
-                  const usersWithThisTag = twitterUsers.filter((user) => {
-                    const userTagList = userTags.get(user.id) || [];
-                    return userTagList.length > 0 && userTagList[0].id === tag.id;
-                  });
-
-                  if (usersWithThisTag.length === 0) return null;
-
-                  return (
-                    <button
-                      key={tag.id}
-                      onClick={() => {
-                        setSelectedTagId(tag.id);
-                        setSelectedUserId(null);
-                      }}
-                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
-                        selectedTagId === tag.id
-                          ? 'text-white shadow-md'
-                          : 'hover:opacity-80'
-                      }`}
-                      style={{
-                        backgroundColor: selectedTagId === tag.id ? tag.color : `${tag.color}20`,
-                        color: selectedTagId === tag.id ? 'white' : tag.color
-                      }}
-                    >
-                      <Tag className="w-4 h-4" />
-                      {tag.name}
-                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-                        selectedTagId === tag.id ? 'bg-white/20' : 'bg-white'
-                      }`}>
-                        {usersWithThisTag.length}
-                      </span>
-                    </button>
-                  );
-                })}
-                <div className="flex-1 min-w-[250px] max-w-[400px]">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                    <input
-                      type="text"
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search tweets..."
-                      className="w-full pl-9 pr-3 py-2 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6 mb-6">
               <div className="flex items-center justify-between mb-6">
                 <div>
@@ -714,23 +642,35 @@ export default function Dashboard() {
                   </p>
                 </div>
                 <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
-                    disabled={syncing}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
-                  >
-                    {syncing ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Fetching...
-                      </>
-                    ) : (
-                      <>
-                        <RefreshCw className="w-5 h-5" />
-                        Fetch Tweets
-                      </>
-                    )}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        placeholder="Search tweets..."
+                        className="w-[200px] pl-9 pr-3 py-2.5 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                      />
+                    </div>
+                    <button
+                      onClick={() => selectedUserId ? handleSyncTweets() : handleFetchTweets(null)}
+                      disabled={syncing}
+                      className="px-6 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                    >
+                      {syncing ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                          Fetching...
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw className="w-5 h-5" />
+                          Fetch Tweets
+                        </>
+                      )}
+                    </button>
+                  </div>
                 <button
                   onClick={() => setShowApiSettings(true)}
                   className="p-3 bg-white border-2 border-gray-300 rounded-xl hover:border-blue-500 transition-all shadow-sm hover:shadow-md group"
@@ -831,47 +771,106 @@ export default function Dashboard() {
               </div>
             </div>
 
+            <div className="bg-white rounded-2xl shadow-lg border-3 border-red-500 p-6 mb-6">
+              <div className="flex items-center gap-3 mb-4">
+                <Tag className="w-5 h-5 text-gray-600" />
+                <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={() => {
+                    setSelectedTagId(null);
+                    setSelectedUserId(null);
+                  }}
+                  className={`px-4 py-2 rounded-xl font-bold text-sm transition-all ${
+                    selectedTagId === null
+                      ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    All Users
+                  </div>
+                </button>
+                {tags.map((tag) => {
+                  const usersWithThisTag = twitterUsers.filter((user) => {
+                    const userTagList = userTags.get(user.id) || [];
+                    return userTagList.length > 0 && userTagList[0].id === tag.id;
+                  });
+
+                  if (usersWithThisTag.length === 0) return null;
+
+                  return (
+                    <button
+                      key={tag.id}
+                      onClick={() => {
+                        setSelectedTagId(tag.id);
+                        setSelectedUserId(null);
+                      }}
+                      className={`px-4 py-2 rounded-xl font-bold text-sm transition-all flex items-center gap-2 ${
+                        selectedTagId === tag.id
+                          ? 'text-white shadow-md'
+                          : 'hover:opacity-80'
+                      }`}
+                      style={{
+                        backgroundColor: selectedTagId === tag.id ? tag.color : `${tag.color}20`,
+                        color: selectedTagId === tag.id ? 'white' : tag.color
+                      }}
+                    >
+                      <Tag className="w-4 h-4" />
+                      {tag.name}
+                      <span className={`ml-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                        selectedTagId === tag.id ? 'bg-white/20' : 'bg-white'
+                      }`}>
+                        {usersWithThisTag.length}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
 
             {tweets.length > 0 && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-3 mb-6">
-                <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="bg-gradient-to-br from-blue-50 to-cyan-50 rounded-xl p-4 border-2 border-blue-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-lg shadow-md">
                       <TrendingUp className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 mb-0.5">{formatNumber(stats.totalEngagement)}</p>
-                  <p className="text-xs font-semibold text-gray-500">Total Engagement</p>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.totalEngagement)}</p>
+                  <p className="text-xs font-semibold text-blue-700">Total Engagement</p>
                 </div>
 
-                <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="bg-gradient-to-br from-red-50 to-pink-50 rounded-xl p-4 border-2 border-red-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-red-500 to-pink-500 rounded-lg shadow-md">
                       <Heart className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 mb-0.5">{formatNumber(stats.avgLikes)}</p>
-                  <p className="text-xs font-semibold text-gray-500">Avg Likes</p>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-pink-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgLikes)}</p>
+                  <p className="text-xs font-semibold text-red-700">Avg Likes</p>
                 </div>
 
-                <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-500 rounded-lg shadow-md">
                       <Repeat2 className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 mb-0.5">{formatNumber(stats.avgRetweets)}</p>
-                  <p className="text-xs font-semibold text-gray-500">Avg Retweets</p>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-green-600 to-emerald-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgRetweets)}</p>
+                  <p className="text-xs font-semibold text-green-700">Avg Retweets</p>
                 </div>
 
-                <div className="bg-white rounded-xl p-4 border border-gray-200 shadow-sm hover:shadow-md transition-all">
+                <div className="bg-gradient-to-br from-violet-50 to-purple-50 rounded-xl p-4 border-2 border-violet-200 shadow-sm hover:shadow-lg hover:scale-105 transition-all">
                   <div className="flex items-center justify-between mb-2">
-                    <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg">
+                    <div className="p-2 bg-gradient-to-br from-violet-500 to-purple-500 rounded-lg shadow-md">
                       <MessageCircle className="w-4 h-4 text-white" />
                     </div>
                   </div>
-                  <p className="text-2xl font-bold text-gray-900 mb-0.5">{formatNumber(stats.avgReplies)}</p>
-                  <p className="text-xs font-semibold text-gray-500">Avg Replies</p>
+                  <p className="text-2xl font-bold bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent mb-0.5">{formatNumber(stats.avgReplies)}</p>
+                  <p className="text-xs font-semibold text-violet-700">Avg Replies</p>
                 </div>
               </div>
             )}
