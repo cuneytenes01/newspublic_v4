@@ -6,7 +6,7 @@ import TweetCard from './TweetCard';
 import TrendingPage from './TrendingPage';
 import SavedTweetsPage from './SavedTweetsPage';
 import DecorativeBackground from './DecorativeBackground';
-import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText } from 'lucide-react';
+import { Loader2, AlertCircle, RefreshCw, TrendingUp, Heart, MessageCircle, Repeat2, BarChart3, Sparkles, Users, Search, Import as SortAsc, Dessert as SortDesc, Download, FileSpreadsheet, FileText, Clock } from 'lucide-react';
 
 export default function Dashboard() {
   const { user } = useAuth();
