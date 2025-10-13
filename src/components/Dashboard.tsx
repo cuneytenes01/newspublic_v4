@@ -785,7 +785,7 @@ export default function Dashboard() {
                     )}
                   </button>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 relative z-[100]">
                   <button
                     onClick={() => setShowApiSettings(true)}
                     className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group flex items-center gap-2"
@@ -798,7 +798,7 @@ export default function Dashboard() {
                   <div className="relative" ref={themeMenuRef}>
                     <button
                       onClick={() => setShowThemeMenu(!showThemeMenu)}
-                      className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
+                      className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2 relative z-[100]"
                       title="Card Theme"
                     >
                       <div className={`w-4 h-4 rounded-md shadow-sm ${
@@ -811,7 +811,7 @@ export default function Dashboard() {
                       <span className="text-xs font-semibold text-gray-700">Theme</span>
                     </button>
                     {showThemeMenu && (
-                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-[9999]" onMouseLeave={(e) => e.stopPropagation()}>
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-[100]" onMouseLeave={(e) => e.stopPropagation()}>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                       <button
                         onClick={() => { setCardTheme('default'); setShowThemeMenu(false); }}
