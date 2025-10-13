@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, Twitter, X, LogOut, Loader2, Sparkles, BarChart3, Users, Tag, Filter, Bookmark, TrendingUp, Settings, CreditCard as Edit3 } from 'lucide-react';
+import { Plus, Twitter, X, LogOut, Loader2, Sparkles, BarChart3, Users, Tag, Filter, Bookmark, TrendingUp, Settings, CreditCard as Edit3, Search } from 'lucide-react';
 import { TwitterUser, UserTag, TwitterUserTag, supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import TagManagement from './TagManagement';
@@ -42,6 +42,7 @@ export default function Sidebar({
   const [showBulkImport, setShowBulkImport] = useState(false);
   const [bulkUsernames, setBulkUsernames] = useState('');
   const [bulkLoading, setBulkLoading] = useState(false);
+  const [userSearchQuery, setUserSearchQuery] = useState('');
   const { signOut } = useAuth();
 
   useEffect(() => {
@@ -91,14 +92,25 @@ export default function Sidebar({
     );
   };
 
-  const filteredUsers = selectedTags.length === 0
-    ? twitterUsers
-    : twitterUsers.filter((user) => {
-        const userTagList = userTags.get(user.id) || [];
-        return selectedTags.some((tagId) =>
-          userTagList.some((tag) => tag.id === tagId)
-        );
-      });
+  const filteredUsers = (() => {
+    let users = selectedTags.length === 0
+      ? twitterUsers
+      : twitterUsers.filter((user) => {
+          const userTagList = userTags.get(user.id) || [];
+          return selectedTags.some((tagId) =>
+            userTagList.some((tag) => tag.id === tagId)
+          );
+        });
+
+    if (userSearchQuery.trim()) {
+      users = users.filter((user) =>
+        user.username.toLowerCase().includes(userSearchQuery.toLowerCase()) ||
+        user.display_name?.toLowerCase().includes(userSearchQuery.toLowerCase())
+      );
+    }
+
+    return users;
+  })();
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -352,17 +364,42 @@ export default function Sidebar({
           )}
 
         <div className="space-y-2">
+          <div className="mb-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={userSearchQuery}
+                onChange={(e) => setUserSearchQuery(e.target.value)}
+                placeholder="Search users..."
+                className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+            </div>
+            <p className="text-xs text-gray-500 font-medium mt-1.5 px-1">
+              {twitterUsers.length} user{twitterUsers.length !== 1 ? 's' : ''} monitored
+            </p>
+          </div>
+
           <div className="relative group">
             <button
               onClick={() => onSelectUser(null)}
-              className={`w-full text-left px-4 py-3.5 rounded-xl font-bold transition-all flex items-center gap-3 ${
+              className={`w-full text-left px-4 py-3.5 rounded-xl font-bold transition-all flex items-center justify-between ${
                 selectedUserId === null
                   ? 'bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md'
                   : 'text-gray-700 hover:bg-gray-100'
               }`}
             >
-              <Users className="w-5 h-5" />
-              All Users
+              <div className="flex items-center gap-3">
+                <Users className="w-5 h-5" />
+                All Users
+              </div>
+              <span className={`text-xs font-bold px-2 py-1 rounded-full ${
+                selectedUserId === null
+                  ? 'bg-white/20 text-white'
+                  : 'bg-gray-200 text-gray-700'
+              }`}>
+                {twitterUsers.length}
+              </span>
             </button>
             <button
               onClick={(e) => {

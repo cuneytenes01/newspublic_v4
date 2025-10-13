@@ -378,20 +378,24 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
         </div>
       ))}
 
-      <div className="mb-5 flex items-center gap-3 text-xs flex-wrap">
+      <div className="mb-5 flex items-center justify-between text-xs flex-wrap gap-3">
         <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full border border-rose-200 shadow-sm">
           <TrendingUp className="w-4 h-4 text-rose-600" />
           <span className="font-bold text-rose-700">{formatNumber(engagement)} engagements</span>
         </div>
-        {tweet.view_count > 0 && (
-          <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-purple-100 to-violet-100 rounded-full border border-violet-200 shadow-sm">
-            <BarChart3 className="w-4 h-4 text-purple-600" />
-            <span className="font-bold text-purple-700">{formatNumber(tweet.view_count)} views</span>
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+            <MessageCircle className="w-4 h-4" />
+            <span className="text-sm font-semibold">{formatNumber(tweet.reply_count)}</span>
           </div>
-        )}
-        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-100 to-cyan-100 rounded-full border border-cyan-200 shadow-sm">
-          <Clock className="w-4 h-4 text-blue-600" />
-          <span className="font-bold text-blue-700">{formatDate(tweet.created_at)}</span>
+          <div className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 transition-colors cursor-pointer">
+            <Repeat2 className="w-4 h-4" />
+            <span className="text-sm font-semibold">{formatNumber(tweet.retweet_count)}</span>
+          </div>
+          <div className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 transition-colors cursor-pointer">
+            <Heart className="w-4 h-4" />
+            <span className="text-sm font-semibold">{formatNumber(tweet.like_count)}</span>
+          </div>
         </div>
       </div>
 
@@ -462,23 +466,8 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-5 border-t-2 border-gray-200/50">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
-            <MessageCircle className="w-5 h-5" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.reply_count)}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600 hover:text-green-600 transition-colors cursor-pointer">
-            <Repeat2 className="w-5 h-5" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.retweet_count)}</span>
-          </div>
-          <div className="flex items-center gap-2 text-gray-600 hover:text-red-600 transition-colors cursor-pointer">
-            <Heart className="w-5 h-5" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.like_count)}</span>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-wrap">
+      <div className="flex items-center justify-center pt-5 border-t-2 border-gray-200/50">
+        <div className="flex items-center gap-2 flex-wrap justify-center">
           <button
             onClick={handleAnalyzeSentiment}
             disabled={loadingSentiment}

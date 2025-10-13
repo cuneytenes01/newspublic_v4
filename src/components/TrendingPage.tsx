@@ -13,12 +13,12 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
   const [minEngagement, setMinEngagement] = useState(1000);
 
   const categories = [
-    { id: 'all', name: 'All Topics', icon: Sparkles },
-    { id: 'ai', name: 'Artificial Intelligence', icon: TrendingUp },
-    { id: 'tech', name: 'Technology', icon: TrendingUp },
-    { id: 'business', name: 'Business', icon: TrendingUp },
-    { id: 'marketing', name: 'Marketing', icon: TrendingUp },
-    { id: 'crypto', name: 'Cryptocurrency', icon: TrendingUp },
+    { id: 'all', name: 'Tüm Konular', icon: Sparkles },
+    { id: 'technology', name: 'Teknoloji', icon: TrendingUp },
+    { id: 'politics', name: 'Politika', icon: TrendingUp },
+    { id: 'sports', name: 'Spor', icon: TrendingUp },
+    { id: 'entertainment', name: 'Eğlence', icon: TrendingUp },
+    { id: 'business', name: 'İş Dünyası', icon: TrendingUp },
   ];
 
   return (
@@ -31,10 +31,10 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
             </div>
             <div>
               <h2 className="text-4xl font-bold bg-gradient-to-r from-orange-600 to-pink-600 bg-clip-text text-transparent">
-                Discover Trending
+                Türkiye'de Trend
               </h2>
               <p className="text-gray-600 font-medium mt-1">
-                High-engagement content from beyond your followed users
+                Türkiye'de bugün en çok konuşulan konular ve tweetler
               </p>
             </div>
           </div>
@@ -45,8 +45,8 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
                 <Filter className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h3 className="font-bold text-gray-900 mb-1">Filter by Category</h3>
-                <p className="text-sm text-gray-600">Select topics that interest you</p>
+                <h3 className="font-bold text-gray-900 mb-1">Kategoriye Göre Filtrele</h3>
+                <p className="text-sm text-gray-600">İlgilendiğiniz konuları seçin</p>
               </div>
             </div>
 
@@ -72,7 +72,7 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
 
             <div className="bg-white rounded-xl p-4 border border-orange-200">
               <label className="block text-sm font-bold text-gray-700 mb-2">
-                Minimum Engagement
+                Minimum Etkileşim
               </label>
               <div className="flex items-center gap-4">
                 <input
@@ -89,7 +89,7 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
                 </span>
               </div>
               <p className="text-xs text-gray-500 mt-2">
-                Show tweets with at least {minEngagement.toLocaleString()} total engagements (likes + retweets + replies)
+                En az {minEngagement.toLocaleString()} toplam etkileşime sahip tweetleri göster (beğeni + retweet + yorum)
               </p>
             </div>
           </div>
@@ -100,35 +100,35 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
             <div className="inline-flex p-4 bg-gradient-to-br from-blue-100 to-cyan-100 rounded-2xl mb-4">
               <AlertCircle className="w-12 h-12 text-blue-600" />
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-3">Trending Discovery Coming Soon</h3>
+            <h3 className="text-xl font-bold text-gray-900 mb-3">Trend Keşfi Çok Yakında</h3>
             <p className="text-gray-600 max-w-2xl mx-auto mb-4">
-              This feature will help you discover high-engagement tweets from users you don't follow yet,
-              based on your selected categories and minimum engagement thresholds.
+              Bu özellik, seçtiğiniz kategorilere ve minimum etkileşim eşiklerine göre,
+              henüz takip etmediğiniz kullanıcılardan yüksek etkileşimli tweetleri keşfetmenize yardımcı olacak.
             </p>
             <div className="bg-white rounded-xl p-4 max-w-xl mx-auto border border-blue-200">
-              <p className="text-sm font-bold text-gray-700 mb-2">What you'll be able to do:</p>
+              <p className="text-sm font-bold text-gray-700 mb-2">Yapabilecekleriniz:</p>
               <ul className="text-left text-sm text-gray-600 space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 font-bold">•</span>
-                  <span>Discover trending tweets in your areas of interest (AI, Tech, Business, etc.)</span>
+                  <span>İlgilendiğiniz alanlarda (Teknoloji, Politika, Spor, vb.) trend olan tweetleri keşfedin</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 font-bold">•</span>
-                  <span>Filter by engagement metrics to find the most viral content</span>
+                  <span>Etkileşim metriklerine göre filtrele ve en viral içerikleri bulun</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 font-bold">•</span>
-                  <span>Quickly follow new users directly from their trending tweets</span>
+                  <span>Trend tweetlerden doğrudan yeni kullanıcıları hızlıca takip edin</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-blue-600 font-bold">•</span>
-                  <span>Get daily/weekly digests of top trending content</span>
+                  <span>Günlük/haftalık en popüler içerik özetleri alın</span>
                 </li>
               </ul>
             </div>
             <p className="text-sm text-gray-500 mt-6">
-              This feature requires Twitter API v2 access with elevated permissions.
-              Implementation is ready and waiting for API access upgrade.
+              Bu özellik, Twitter API v2 erişimi ve yükseltilmiş izinler gerektirir.
+              Implementasyon hazır ve API erişim yükseltmesi bekleniyor.
             </p>
           </div>
         </div>

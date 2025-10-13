@@ -284,12 +284,26 @@ export default function Dashboard() {
     try {
       if (userId === null) {
         for (const user of twitterUsers) {
-          await fetchTwitterTimeline(user.id, user.username);
+          const shouldFetch = await checkIfShouldFetch(user.id);
+          if (shouldFetch) {
+            await fetchTwitterTimeline(user.id, user.username);
+            await updateLastFetchedAt(user.id);
+          } else {
+            console.log(`Skipping @${user.username} - fetched less than 1 hour ago`);
+          }
         }
       } else {
         const user = twitterUsers.find(u => u.id === userId);
         if (user) {
-          await fetchTwitterTimeline(user.id, user.username);
+          const shouldFetch = await checkIfShouldFetch(user.id);
+          if (shouldFetch) {
+            await fetchTwitterTimeline(user.id, user.username);
+            await updateLastFetchedAt(user.id);
+          } else {
+            setError(`@${user.username} was fetched less than 1 hour ago. Please wait before fetching again.`);
+            setSyncing(false);
+            return;
+          }
         }
       }
       await loadTweets();
@@ -298,6 +312,42 @@ export default function Dashboard() {
       setError(err.message || 'Failed to fetch tweets');
     } finally {
       setSyncing(false);
+    }
+  };
+
+  const checkIfShouldFetch = async (userId: string): Promise<boolean> => {
+    try {
+      const { data, error } = await supabase
+        .from('twitter_users')
+        .select('last_fetched_at')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+
+      if (!data.last_fetched_at) {
+        return true;
+      }
+
+      const lastFetched = new Date(data.last_fetched_at);
+      const now = new Date();
+      const hoursDiff = (now.getTime() - lastFetched.getTime()) / (1000 * 60 * 60);
+
+      return hoursDiff >= 1;
+    } catch (err) {
+      console.error('Error checking fetch status:', err);
+      return true;
+    }
+  };
+
+  const updateLastFetchedAt = async (userId: string) => {
+    try {
+      await supabase
+        .from('twitter_users')
+        .update({ last_fetched_at: new Date().toISOString() })
+        .eq('id', userId);
+    } catch (err) {
+      console.error('Error updating last_fetched_at:', err);
     }
   };
 
