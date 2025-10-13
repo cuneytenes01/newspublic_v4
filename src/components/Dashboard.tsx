@@ -811,7 +811,7 @@ export default function Dashboard() {
                       <span className="text-xs font-semibold text-gray-700">Theme</span>
                     </button>
                     {showThemeMenu && (
-                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-20" onMouseLeave={(e) => e.stopPropagation()}>
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-[9999]" onMouseLeave={(e) => e.stopPropagation()}>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                       <button
                         onClick={() => { setCardTheme('default'); setShowThemeMenu(false); }}

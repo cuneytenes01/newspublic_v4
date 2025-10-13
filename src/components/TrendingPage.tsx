@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { TrendingUp, Sparkles, AlertCircle, Filter, Loader2, RefreshCw, Globe } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { TrendingUp, Sparkles, AlertCircle, Filter, Loader2, RefreshCw, Globe, Users, Twitter } from 'lucide-react';
 import TweetCard from './TweetCard';
 import { Tweet } from '../lib/supabase';
 
@@ -57,6 +57,43 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
       setLoading(false);
     }
   };
+
+  const trendingUsers = useMemo(() => {
+    if (tweets.length === 0) return [];
+
+    const userMap = new Map<string, {
+      username: string;
+      name: string;
+      profileImage: string;
+      totalEngagement: number;
+      tweetCount: number;
+    }>();
+
+    tweets.forEach((tweet: any) => {
+      const username = tweet.author_username;
+      if (!username || username === 'unknown') return;
+
+      const engagement = (tweet.like_count || 0) + (tweet.retweet_count || 0) + (tweet.reply_count || 0);
+
+      if (userMap.has(username)) {
+        const user = userMap.get(username)!;
+        user.totalEngagement += engagement;
+        user.tweetCount += 1;
+      } else {
+        userMap.set(username, {
+          username,
+          name: tweet.author_name || username,
+          profileImage: tweet.author_profile_image || '',
+          totalEngagement: engagement,
+          tweetCount: 1
+        });
+      }
+    });
+
+    return Array.from(userMap.values())
+      .sort((a, b) => b.totalEngagement - a.totalEngagement)
+      .slice(0, 10);
+  }, [tweets]);
 
   return (
     <div className="flex-1 overflow-y-auto relative z-10">
@@ -204,6 +241,66 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
                   </div>
                 )}
               </div>
+            </div>
+          </div>
+        )}
+
+        {tweets.length > 0 && trendingUsers.length > 0 && (
+          <div className="mb-8 bg-gradient-to-br from-blue-50 to-cyan-50 rounded-2xl border border-blue-200 p-6 shadow-sm">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl">
+                <Users className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-gray-900">En Popüler Kullanıcılar</h3>
+                <p className="text-sm text-gray-600">En yüksek etkileşime sahip kullanıcılar</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {trendingUsers.map((user, index) => (
+                <a
+                  key={user.username}
+                  href={`https://twitter.com/${user.username}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white rounded-xl p-4 hover:shadow-lg transition-all border border-gray-200 hover:border-blue-300 group"
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="relative">
+                      <div className="absolute -top-2 -left-2 bg-gradient-to-br from-yellow-400 to-orange-500 text-white rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold shadow-lg">
+                        {index + 1}
+                      </div>
+                      {user.profileImage ? (
+                        <img
+                          src={user.profileImage}
+                          alt={user.username}
+                          className="w-16 h-16 rounded-full border-2 border-gray-200 group-hover:border-blue-400 transition-colors"
+                        />
+                      ) : (
+                        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-400 to-cyan-400 flex items-center justify-center border-2 border-gray-200">
+                          <span className="text-white font-bold text-xl">{user.name[0]}</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+                        {user.name}
+                      </p>
+                      <p className="text-gray-500 text-sm truncate">@{user.username}</p>
+                      <div className="flex items-center gap-4 mt-2">
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <Twitter className="w-3.5 h-3.5" />
+                          <span className="font-medium">{user.tweetCount} tweet</span>
+                        </div>
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <TrendingUp className="w-3.5 h-3.5" />
+                          <span className="font-medium">{(user.totalEngagement / 1000).toFixed(1)}K etkileşim</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </a>
+              ))}
             </div>
           </div>
         )}
