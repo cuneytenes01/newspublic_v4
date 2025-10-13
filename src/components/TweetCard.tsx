@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Heart, Repeat2, MessageCircle, Sparkles, Languages, Loader2, Twitter, TrendingUp, Clock, BarChart3, X, Bookmark, BookmarkCheck, Smile, Frown, Meh, Link2 } from 'lucide-react';
+import { Heart, Repeat2, MessageCircle, Sparkles, Languages, Loader2, Twitter, TrendingUp, Clock, BarChart3, X, Bookmark, BookmarkCheck, Smile, Frown, Meh, Link2, MoreHorizontal } from 'lucide-react';
 import { Tweet, supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -26,6 +26,7 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
   const [sentimentScore, setSentimentScore] = useState<number | null>(tweet.sentiment_score);
   const [sentimentReason, setSentimentReason] = useState<string>('');
   const [loadingSentiment, setLoadingSentiment] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
 
   useEffect(() => {
     checkIfSaved();
@@ -378,23 +379,141 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
         </div>
       ))}
 
-      <div className="mb-5 flex items-center justify-between text-xs flex-wrap gap-3">
-        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full border border-rose-200 shadow-sm">
+      <div className="mb-5 flex items-center justify-between text-xs">
+        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-pink-100 to-rose-100 rounded-full border border-rose-200 shadow-sm shrink-0">
           <TrendingUp className="w-4 h-4 text-rose-600" />
           <span className="font-bold text-rose-700">{formatNumber(engagement)} engagements</span>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
-            <MessageCircle className="w-4 h-4" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.reply_count)}</span>
+
+        <div className="flex items-center gap-2 flex-wrap justify-end">
+          <div className="hidden md:flex items-center gap-3">
+            <div className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+              <MessageCircle className="w-4 h-4" />
+              <span className="text-sm font-semibold">{formatNumber(tweet.reply_count)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 transition-colors cursor-pointer">
+              <Repeat2 className="w-4 h-4" />
+              <span className="text-sm font-semibold">{formatNumber(tweet.retweet_count)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 transition-colors cursor-pointer">
+              <Heart className="w-4 h-4" />
+              <span className="text-sm font-semibold">{formatNumber(tweet.like_count)}</span>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 transition-colors cursor-pointer">
-            <Repeat2 className="w-4 h-4" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.retweet_count)}</span>
-          </div>
-          <div className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 transition-colors cursor-pointer">
-            <Heart className="w-4 h-4" />
-            <span className="text-sm font-semibold">{formatNumber(tweet.like_count)}</span>
+
+          <button
+            onClick={handleAnalyzeSentiment}
+            disabled={loadingSentiment}
+            aria-label={sentiment ? 'Re-analyze sentiment' : 'Analyze sentiment'}
+            className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
+              sentiment
+                ? `bg-gradient-to-r ${getSentimentColor()} text-white`
+                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-purple-500 hover:text-purple-600'
+            }`}
+          >
+            {loadingSentiment ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : sentiment ? (
+              getSentimentIcon()
+            ) : (
+              <Meh className="w-4 h-4" />
+            )}
+            <span className="hidden lg:inline">{loadingSentiment ? 'Analiz...' : 'Sentiment'}</span>
+          </button>
+
+          <button
+            onClick={handleToggleBookmark}
+            disabled={savingBookmark}
+            aria-label={isSaved ? 'Remove from saved' : 'Save tweet'}
+            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
+              isSaved
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
+                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
+            }`}
+          >
+            {savingBookmark ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : isSaved ? (
+              <BookmarkCheck className="w-4 h-4" />
+            ) : (
+              <Bookmark className="w-4 h-4" />
+            )}
+            <span className="hidden lg:inline">{isSaved ? 'Saved' : 'Save'}</span>
+          </button>
+
+          <button
+            onClick={handleTranslate}
+            disabled={loadingTranslation}
+            aria-label="Translate tweet"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
+          >
+            {loadingTranslation ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Languages className="w-4 h-4" />
+            )}
+            <span className="hidden lg:inline">Translate</span>
+          </button>
+
+          <button
+            onClick={handleSummarize}
+            disabled={loadingSummary}
+            aria-label="Summarize tweet"
+            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
+          >
+            {loadingSummary ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4" />
+            )}
+            <span className="hidden lg:inline">Summarize</span>
+          </button>
+
+          <div className="relative md:hidden">
+            <button
+              onClick={() => setShowMoreMenu(!showMoreMenu)}
+              aria-label="More actions"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-xl bg-white border-2 border-gray-300 text-gray-700 hover:bg-gray-50 transition-all text-xs font-semibold shadow-sm"
+            >
+              <MoreHorizontal className="w-4 h-4" />
+            </button>
+            {showMoreMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 z-20">
+                <button
+                  onClick={() => {
+                    handleAnalyzeSentiment();
+                    setShowMoreMenu(false);
+                  }}
+                  disabled={loadingSentiment}
+                  className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors text-sm"
+                >
+                  {loadingSentiment ? <Loader2 className="w-4 h-4 animate-spin" /> : <Meh className="w-4 h-4" />}
+                  <span>Sentiment</span>
+                </button>
+                <button
+                  onClick={() => {
+                    handleTranslate();
+                    setShowMoreMenu(false);
+                  }}
+                  disabled={loadingTranslation}
+                  className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors text-sm"
+                >
+                  {loadingTranslation ? <Loader2 className="w-4 h-4 animate-spin" /> : <Languages className="w-4 h-4" />}
+                  <span>Translate</span>
+                </button>
+                <button
+                  onClick={() => {
+                    handleSummarize();
+                    setShowMoreMenu(false);
+                  }}
+                  disabled={loadingSummary}
+                  className="w-full px-4 py-2.5 text-left hover:bg-gray-50 flex items-center gap-3 transition-colors text-sm"
+                >
+                  {loadingSummary ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+                  <span>Summarize</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -466,71 +585,6 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
         </div>
       )}
 
-      <div className="flex items-center justify-center pt-5 border-t-2 border-gray-200/50">
-        <div className="flex items-center gap-2 flex-wrap justify-center">
-          <button
-            onClick={handleAnalyzeSentiment}
-            disabled={loadingSentiment}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md transform hover:scale-105 ${
-              sentiment
-                ? `bg-gradient-to-r ${getSentimentColor()} text-white`
-                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-purple-500 hover:text-purple-600'
-            }`}
-          >
-            {loadingSentiment ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : sentiment ? (
-              getSentimentIcon()
-            ) : (
-              <Meh className="w-4 h-4" />
-            )}
-            {loadingSentiment ? 'Analiz...' : (sentiment ? 'Yeniden Analiz' : 'Sentiment')}
-          </button>
-          <button
-            onClick={handleToggleBookmark}
-            disabled={savingBookmark}
-            className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md transform hover:scale-105 ${
-              isSaved
-                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
-                : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
-            }`}
-            title={isSaved ? 'Remove from saved' : 'Save tweet'}
-          >
-            {savingBookmark ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : isSaved ? (
-              <BookmarkCheck className="w-4 h-4" />
-            ) : (
-              <Bookmark className="w-4 h-4" />
-            )}
-            {isSaved ? 'Saved' : 'Save'}
-          </button>
-          <button
-            onClick={handleTranslate}
-            disabled={loadingTranslation}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md transform hover:scale-105"
-          >
-            {loadingTranslation ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Languages className="w-4 h-4" />
-            )}
-            Translate
-          </button>
-          <button
-            onClick={handleSummarize}
-            disabled={loadingSummary}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md transform hover:scale-105"
-          >
-            {loadingSummary ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Sparkles className="w-4 h-4" />
-            )}
-            Summarize
-          </button>
-        </div>
-      </div>
     </div>
   );
 }

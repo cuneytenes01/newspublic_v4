@@ -31,6 +31,7 @@ export default function Dashboard() {
   const [showExportMenu, setShowExportMenu] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [showApiSettings, setShowApiSettings] = useState(false);
+  const [showThemeMenu, setShowThemeMenu] = useState(false);
 
   useEffect(() => {
     loadTwitterUsers();
@@ -777,8 +778,9 @@ export default function Dashboard() {
                     <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Settings</span>
                   </button>
 
-                  <div className="relative group">
+                  <div className="relative">
                     <button
+                      onClick={() => setShowThemeMenu(!showThemeMenu)}
                       className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
                       title="Card Theme"
                     >
@@ -791,44 +793,46 @@ export default function Dashboard() {
                       }`}></div>
                       <span className="text-xs font-semibold text-gray-700">Theme</span>
                     </button>
-                    <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 hidden group-hover:block transition-all duration-200 z-20">
+                    {showThemeMenu && (
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-20">
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                       <button
-                        onClick={() => setCardTheme('default')}
+                        onClick={() => { setCardTheme('default'); setShowThemeMenu(false); }}
                         className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'default' ? 'bg-blue-50 ring-2 ring-blue-500' : ''}`}
                       >
                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-blue-400 to-cyan-400 shadow-sm"></div>
                         <span className="font-semibold text-sm text-gray-700">Default</span>
                       </button>
                       <button
-                        onClick={() => setCardTheme('warm')}
+                        onClick={() => { setCardTheme('warm'); setShowThemeMenu(false); }}
                         className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'warm' ? 'bg-orange-50 ring-2 ring-orange-500' : ''}`}
                       >
                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-orange-400 to-amber-400 shadow-sm"></div>
                         <span className="font-semibold text-sm text-gray-700">Warm</span>
                       </button>
                       <button
-                        onClick={() => setCardTheme('cool')}
+                        onClick={() => { setCardTheme('cool'); setShowThemeMenu(false); }}
                         className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'cool' ? 'bg-cyan-50 ring-2 ring-cyan-500' : ''}`}
                       >
                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-cyan-400 to-teal-400 shadow-sm"></div>
                         <span className="font-semibold text-sm text-gray-700">Cool</span>
                       </button>
                       <button
-                        onClick={() => setCardTheme('nature')}
+                        onClick={() => { setCardTheme('nature'); setShowThemeMenu(false); }}
                         className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'nature' ? 'bg-green-50 ring-2 ring-green-500' : ''}`}
                       >
                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-green-400 to-emerald-400 shadow-sm"></div>
                         <span className="font-semibold text-sm text-gray-700">Nature</span>
                       </button>
                       <button
-                        onClick={() => setCardTheme('sunset')}
+                        onClick={() => { setCardTheme('sunset'); setShowThemeMenu(false); }}
                         className={`w-full px-3 py-2.5 rounded-lg flex items-center gap-3 transition-all hover:bg-gray-50 ${cardTheme === 'sunset' ? 'bg-pink-50 ring-2 ring-pink-500' : ''}`}
                       >
                         <div className="w-6 h-6 rounded-md bg-gradient-to-br from-pink-400 to-rose-400 shadow-sm"></div>
                         <span className="font-semibold text-sm text-gray-700">Sunset</span>
                       </button>
                     </div>
+                    )}
                   </div>
 
                   <div className="relative">
