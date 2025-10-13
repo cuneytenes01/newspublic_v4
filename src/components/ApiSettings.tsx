@@ -20,6 +20,7 @@ const AI_MODELS = [
 
 export default function ApiSettings({ onClose }: ApiSettingsProps) {
   const [apiKey, setApiKey] = useState('');
+  const [twitterApiKey, setTwitterApiKey] = useState('');
   const [selectedModel, setSelectedModel] = useState('google/gemini-flash-1.5-latest');
   const [summarizePrompt, setSummarizePrompt] = useState('Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.');
   const [translatePrompt, setTranslatePrompt] = useState('You are a translator. Only provide the translation, nothing else.');
@@ -28,12 +29,16 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
 
   useEffect(() => {
     const savedKey = localStorage.getItem('openrouter_api_key');
+    const savedTwitterKey = localStorage.getItem('twitter_api_key');
     const savedModel = localStorage.getItem('openrouter_model');
     const savedSummarizePrompt = localStorage.getItem('openrouter_summarize_prompt');
     const savedTranslatePrompt = localStorage.getItem('openrouter_translate_prompt');
 
     if (savedKey) {
       setApiKey(savedKey);
+    }
+    if (savedTwitterKey) {
+      setTwitterApiKey(savedTwitterKey);
     }
     if (savedModel) {
       setSelectedModel(savedModel);
@@ -47,34 +52,44 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
   }, []);
 
   const handleSave = async () => {
-    if (!apiKey.trim()) {
-      setMessage('Please enter an API key');
+    if (!apiKey.trim() && !twitterApiKey.trim()) {
+      setMessage('Please enter at least one API key');
       return;
     }
 
     setSaving(true);
     try {
-      const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${apiKey.trim()}`,
-        },
-      });
+      if (apiKey.trim()) {
+        const response = await fetch('https://openrouter.ai/api/v1/auth/key', {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${apiKey.trim()}`,
+          },
+        });
 
-      if (response.ok) {
-        localStorage.setItem('openrouter_api_key', apiKey.trim());
-        localStorage.setItem('openrouter_model', selectedModel);
-        localStorage.setItem('openrouter_summarize_prompt', summarizePrompt);
-        localStorage.setItem('openrouter_translate_prompt', translatePrompt);
-        setMessage('Settings saved successfully!');
-        setTimeout(() => {
-          onClose();
-        }, 1500);
-      } else {
-        setMessage('Invalid API key. Please check and try again.');
+        if (response.ok) {
+          localStorage.setItem('openrouter_api_key', apiKey.trim());
+        }
       }
+
+      if (twitterApiKey.trim()) {
+        localStorage.setItem('twitter_api_key', twitterApiKey.trim());
+      }
+
+      localStorage.setItem('openrouter_model', selectedModel);
+      localStorage.setItem('openrouter_summarize_prompt', summarizePrompt);
+      localStorage.setItem('openrouter_translate_prompt', translatePrompt);
+      setMessage('Settings saved successfully!');
+      setTimeout(() => {
+        onClose();
+      }, 1500);
     } catch (error) {
-      localStorage.setItem('openrouter_api_key', apiKey.trim());
+      if (apiKey.trim()) {
+        localStorage.setItem('openrouter_api_key', apiKey.trim());
+      }
+      if (twitterApiKey.trim()) {
+        localStorage.setItem('twitter_api_key', twitterApiKey.trim());
+      }
       localStorage.setItem('openrouter_model', selectedModel);
       localStorage.setItem('openrouter_summarize_prompt', summarizePrompt);
       localStorage.setItem('openrouter_translate_prompt', translatePrompt);
@@ -89,10 +104,12 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
 
   const handleClear = () => {
     localStorage.removeItem('openrouter_api_key');
+    localStorage.removeItem('twitter_api_key');
     localStorage.removeItem('openrouter_model');
     localStorage.removeItem('openrouter_summarize_prompt');
     localStorage.removeItem('openrouter_translate_prompt');
     setApiKey('');
+    setTwitterApiKey('');
     setSelectedModel('google/gemini-flash-1.5-latest');
     setSummarizePrompt('Sen bir tweet analiz uzmanısın. Tweet\'i Türkçe olarak özetle. Basit ve anlaşılır dil kullan. 2-3 cümle ile özetle.');
     setTranslatePrompt('You are a translator. Only provide the translation, nothing else.');
@@ -143,6 +160,22 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
 
           <div>
             <label className="block text-sm font-bold text-gray-700 mb-2">
+              Twitter API Key (TwitterAPI.io)
+            </label>
+            <input
+              type="password"
+              value={twitterApiKey}
+              onChange={(e) => setTwitterApiKey(e.target.value)}
+              placeholder="Enter your TwitterAPI.io key"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              Required for Discover tab. Get it from <a href="https://twitterapi.io" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">twitterapi.io</a>
+            </p>
+          </div>
+
+          <div>
+            <label className="block text-sm font-bold text-gray-700 mb-2">
               OpenRouter API Key
             </label>
             <input
@@ -153,7 +186,7 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
               className="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
             />
             <p className="text-xs text-gray-500 mt-2">
-              Your API key is stored locally in your browser and never sent to our servers
+              Your API keys are stored locally in your browser and never sent to our servers
             </p>
           </div>
 
@@ -229,7 +262,7 @@ export default function ApiSettings({ onClose }: ApiSettingsProps) {
           </button>
           <button
             onClick={handleSave}
-            disabled={saving || !apiKey.trim()}
+            disabled={saving || (!apiKey.trim() && !twitterApiKey.trim())}
             className="flex-1 py-3 bg-gradient-to-r from-blue-500 to-cyan-500 text-white rounded-xl font-bold hover:from-blue-600 hover:to-cyan-600 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center justify-center gap-2"
           >
             {saving ? (

@@ -30,9 +30,8 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { category, minEngagement, country } = await req.json();
+    const { category, minEngagement, country, twitterApiKey } = await req.json();
 
-    const twitterApiKey = Deno.env.get("TWITTER_API_KEY");
     if (!twitterApiKey) {
       return new Response(
         JSON.stringify({ error: "Twitter API key not configured" }),

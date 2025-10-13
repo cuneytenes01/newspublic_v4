@@ -29,6 +29,11 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
     setLoading(true);
     setError('');
     try {
+      const twitterApiKey = localStorage.getItem('twitter_api_key');
+      if (!twitterApiKey) {
+        throw new Error('Twitter API key not configured');
+      }
+
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-trending-tweets`;
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -39,7 +44,8 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
         body: JSON.stringify({
           category: selectedCategory,
           minEngagement,
-          country
+          country,
+          twitterApiKey
         }),
       });
 
