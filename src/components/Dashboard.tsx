@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase, TwitterUser, Tweet, UserTag } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import Sidebar from './Sidebar';
@@ -32,12 +32,29 @@ export default function Dashboard() {
   const [exporting, setExporting] = useState(false);
   const [showApiSettings, setShowApiSettings] = useState(false);
   const [showThemeMenu, setShowThemeMenu] = useState(false);
+  const themeMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loadTwitterUsers();
     loadTags();
     loadUserTags();
   }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (themeMenuRef.current && !themeMenuRef.current.contains(event.target as Node)) {
+        setShowThemeMenu(false);
+      }
+    };
+
+    if (showThemeMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showThemeMenu]);
 
   useEffect(() => {
     loadTweets();
@@ -778,7 +795,7 @@ export default function Dashboard() {
                     <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Settings</span>
                   </button>
 
-                  <div className="relative">
+                  <div className="relative" ref={themeMenuRef}>
                     <button
                       onClick={() => setShowThemeMenu(!showThemeMenu)}
                       className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
@@ -794,7 +811,7 @@ export default function Dashboard() {
                       <span className="text-xs font-semibold text-gray-700">Theme</span>
                     </button>
                     {showThemeMenu && (
-                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-20">
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-20" onMouseLeave={(e) => e.stopPropagation()}>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                       <button
                         onClick={() => { setCardTheme('default'); setShowThemeMenu(false); }}

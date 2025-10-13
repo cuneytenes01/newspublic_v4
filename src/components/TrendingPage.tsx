@@ -178,11 +178,30 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
         </div>
 
         {error && (
-          <div className="mb-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-5 flex items-center gap-3 shadow-sm">
-            <div className="p-2 bg-red-500 rounded-lg">
-              <AlertCircle className="w-5 h-5 text-white" />
+          <div className="mb-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl p-5 shadow-sm">
+            <div className="flex items-start gap-3">
+              <div className="p-2 bg-red-500 rounded-lg shrink-0">
+                <AlertCircle className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <p className="text-red-800 font-bold mb-2">Twitter API Hatası</p>
+                <p className="text-red-700 text-sm mb-3">
+                  {error.includes('not configured')
+                    ? 'Twitter API anahtarı yapılandırılmamış. Lütfen TWITTER_API_KEY ortam değişkenini ayarlayın.'
+                    : error}
+                </p>
+                {error.includes('not configured') && (
+                  <div className="bg-white rounded-lg p-3 text-xs text-gray-700 border border-red-200">
+                    <p className="font-semibold mb-1">Nasıl Düzeltilir:</p>
+                    <ol className="list-decimal list-inside space-y-1 text-gray-600">
+                      <li>https://twitterapi.io adresinden API key alın</li>
+                      <li>Supabase Dashboard'da Project Settings {'>'} Edge Functions'a gidin</li>
+                      <li>TWITTER_API_KEY ortam değişkenini ekleyin</li>
+                    </ol>
+                  </div>
+                )}
+              </div>
             </div>
-            <p className="text-red-800 font-semibold">{error}</p>
           </div>
         )}
 
