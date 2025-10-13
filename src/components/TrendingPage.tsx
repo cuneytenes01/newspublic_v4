@@ -29,8 +29,6 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
     setLoading(true);
     setError('');
     try {
-      const twitterApiKey = localStorage.getItem('twitter_api_key') || undefined;
-
       const apiUrl = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/fetch-trending-tweets`;
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -41,8 +39,7 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
         body: JSON.stringify({
           category: selectedCategory,
           minEngagement,
-          country,
-          twitterApiKey
+          country
         }),
       });
 
@@ -190,16 +187,19 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
                 <p className="text-red-800 font-bold mb-2">Twitter API Hatası</p>
                 <p className="text-red-700 text-sm mb-3">
                   {error.includes('not configured')
-                    ? 'Twitter API anahtarı yapılandırılmamış. Lütfen TWITTER_API_KEY ortam değişkenini ayarlayın.'
+                    ? 'Twitter API anahtarı Supabase\'de yapılandırılmamış.'
+                    : error.includes('401')
+                    ? 'API anahtarı geçersiz. Lütfen doğru anahtarı kullandığınızdan emin olun.'
                     : error}
                 </p>
-                {error.includes('not configured') && (
+                {(error.includes('not configured') || error.includes('401')) && (
                   <div className="bg-white rounded-lg p-3 text-xs text-gray-700 border border-red-200">
                     <p className="font-semibold mb-1">Nasıl Düzeltilir:</p>
                     <ol className="list-decimal list-inside space-y-1 text-gray-600">
                       <li>https://twitterapi.io adresinden API key alın</li>
                       <li>Supabase Dashboard'da Project Settings {'>'} Edge Functions'a gidin</li>
-                      <li>TWITTER_API_KEY ortam değişkenini ekleyin</li>
+                      <li>Secret olarak <strong>TWITTERAPI_IO_KEY</strong> adıyla ekleyin</li>
+                      <li>Edge function'ı yeniden deploy edin</li>
                     </ol>
                   </div>
                 )}

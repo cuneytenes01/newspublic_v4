@@ -30,13 +30,13 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { category, minEngagement, country, twitterApiKey: clientApiKey } = await req.json();
+    const { category, minEngagement, country } = await req.json();
 
-    const twitterApiKey = clientApiKey || Deno.env.get("TWITTERAPI_IO_KEY");
+    const twitterApiKey = Deno.env.get("TWITTERAPI_IO_KEY");
 
     if (!twitterApiKey) {
       return new Response(
-        JSON.stringify({ error: "Twitter API key not configured" }),
+        JSON.stringify({ error: "Twitter API key not configured in Supabase" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -53,8 +53,7 @@ Deno.serve(async (req: Request) => {
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'Authorization': `Bearer ${twitterApiKey}`,
-        'Content-Type': 'application/json'
+        'x-api-key': twitterApiKey
       }
     });
 
