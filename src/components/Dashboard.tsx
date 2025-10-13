@@ -692,11 +692,11 @@ export default function Dashboard() {
       )}
 
       {currentPage === 'timeline' && (
-      <div className="flex-1 overflow-y-auto relative z-10">
+      <div className="flex-1 overflow-y-auto relative">
         <div className="max-w-6xl mx-auto p-8">
           <div className="mb-8">
 
-            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6">
+            <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-lg border border-gray-200/50 p-6 mb-6 relative">
               <div className="flex items-center gap-2 mb-4">
                 <Tag className="w-5 h-5 text-gray-600" />
                 <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide">Filter by Category</h3>
@@ -785,7 +785,7 @@ export default function Dashboard() {
                     )}
                   </button>
                 </div>
-                <div className="flex items-center gap-2 relative z-[100]">
+                <div className="flex items-center gap-2">
                   <button
                     onClick={() => setShowApiSettings(true)}
                     className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-blue-500 hover:bg-blue-50 transition-all shadow-sm hover:shadow-md group flex items-center gap-2"
@@ -795,10 +795,10 @@ export default function Dashboard() {
                     <span className="text-xs font-semibold text-gray-700 group-hover:text-blue-600 transition-colors">Settings</span>
                   </button>
 
-                  <div className="relative" ref={themeMenuRef}>
+                  <div className="relative z-50" ref={themeMenuRef}>
                     <button
                       onClick={() => setShowThemeMenu(!showThemeMenu)}
-                      className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2 relative z-[100]"
+                      className="px-3 py-2.5 bg-white border-2 border-gray-200 rounded-xl hover:border-gray-300 hover:bg-gray-50 transition-all shadow-sm hover:shadow-md flex items-center gap-2"
                       title="Card Theme"
                     >
                       <div className={`w-4 h-4 rounded-md shadow-sm ${
@@ -811,7 +811,7 @@ export default function Dashboard() {
                       <span className="text-xs font-semibold text-gray-700">Theme</span>
                     </button>
                     {showThemeMenu && (
-                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-[100]" onMouseLeave={(e) => e.stopPropagation()}>
+                      <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-2xl border border-gray-200 py-2 px-2 z-50" onMouseLeave={(e) => e.stopPropagation()}>
                       <p className="text-xs font-bold text-gray-500 uppercase tracking-wide mb-2 px-2">Card Theme</p>
                       <button
                         onClick={() => { setCardTheme('default'); setShowThemeMenu(false); }}

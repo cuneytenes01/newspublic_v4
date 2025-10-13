@@ -59,7 +59,6 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
   };
 
   const trendingUsers = useMemo(() => {
-    console.log('Calculating trending users, tweets count:', tweets.length);
     if (tweets.length === 0) return [];
 
     const userMap = new Map<string, {
@@ -72,7 +71,6 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
 
     tweets.forEach((tweet: any) => {
       const username = tweet.author_username;
-      console.log('Processing tweet from:', username);
       if (!username || username === 'unknown') return;
 
       const engagement = (tweet.like_count || 0) + (tweet.retweet_count || 0) + (tweet.reply_count || 0);
@@ -92,12 +90,9 @@ export default function TrendingPage({ onSummarize, onTranslate }: TrendingPageP
       }
     });
 
-    const users = Array.from(userMap.values())
+    return Array.from(userMap.values())
       .sort((a, b) => b.totalEngagement - a.totalEngagement)
       .slice(0, 10);
-
-    console.log('Trending users calculated:', users.length, users);
-    return users;
   }, [tweets]);
 
   return (

@@ -375,10 +375,11 @@ export default function Sidebar({
                 className="w-full pl-10 pr-4 py-2.5 bg-white border-2 border-gray-200 rounded-xl text-sm font-medium placeholder:text-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
               />
             </div>
-            <p className="text-xs text-gray-500 font-medium mt-1.5 px-1">
-              {twitterUsers.length} user{twitterUsers.length !== 1 ? 's' : ''} monitored
-            </p>
           </div>
+
+          <p className="text-xs text-gray-500 font-medium mb-2 px-1">
+            {twitterUsers.length} user{twitterUsers.length !== 1 ? 's' : ''} monitored
+          </p>
 
           <div className="relative group">
             <button
