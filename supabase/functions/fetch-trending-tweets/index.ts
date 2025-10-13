@@ -32,10 +32,10 @@ Deno.serve(async (req: Request) => {
   try {
     const { category, minEngagement, country } = await req.json();
 
-    const rapidApiKey = Deno.env.get("RAPIDAPI_KEY");
-    if (!rapidApiKey) {
+    const twitterApiKey = Deno.env.get("TWITTER_API_KEY");
+    if (!twitterApiKey) {
       return new Response(
-        JSON.stringify({ error: "RapidAPI key not configured" }),
+        JSON.stringify({ error: "Twitter API key not configured" }),
         {
           status: 500,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -45,25 +45,27 @@ Deno.serve(async (req: Request) => {
 
     const searchQuery = category && category !== 'all'
       ? getCategoryQuery(category, country)
-      : country === 'turkey' ? 'Turkey OR Türkiye lang:tr' : '';
+      : country === 'turkey' ? 'Turkey OR Türkiye lang:tr' : 'trending';
 
-    const url = `https://twitter-api45.p.rapidapi.com/search.php?query=${encodeURIComponent(searchQuery)}&search_type=Top`;
+    const url = `https://api.twitterapi.io/v1/search/tweets?query=${encodeURIComponent(searchQuery)}&count=50&result_type=popular`;
 
     const response = await fetch(url, {
       method: 'GET',
       headers: {
-        'x-rapidapi-key': rapidApiKey,
-        'x-rapidapi-host': 'twitter-api45.p.rapidapi.com'
+        'Authorization': `Bearer ${twitterApiKey}`,
+        'Content-Type': 'application/json'
       }
     });
 
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error('API Error:', response.status, errorText);
       throw new Error(`API request failed: ${response.status}`);
     }
 
     const data = await response.json();
 
-    if (!data.timeline) {
+    if (!data.statuses || !Array.isArray(data.statuses)) {
       return new Response(
         JSON.stringify({ tweets: [], count: 0 }),
         {
@@ -73,26 +75,38 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const tweets: TrendingTweet[] = data.timeline
+    const tweets: TrendingTweet[] = data.statuses
       .filter((item: any) => {
-        const engagement = (item.favorites || 0) + (item.retweets || 0) + (item.replies || 0);
+        const engagement = (item.favorite_count || 0) + (item.retweet_count || 0) + (item.reply_count || 0);
         return engagement >= (minEngagement || 1000);
       })
       .slice(0, 50)
-      .map((item: any) => ({
-        id: item.tweet_id,
-        text: item.text || '',
-        author_username: item.author?.screen_name || 'unknown',
-        author_name: item.author?.name || 'Unknown',
-        author_profile_image: item.author?.avatar || '',
-        created_at: item.created_at || new Date().toISOString(),
-        like_count: item.favorites || 0,
-        retweet_count: item.retweets || 0,
-        reply_count: item.replies || 0,
-        view_count: item.views || 0,
-        media_urls: item.media_url ? [item.media_url] : [],
-        media_types: item.media_url ? ['photo'] : []
-      }));
+      .map((item: any) => {
+        const mediaUrls: string[] = [];
+        const mediaTypes: string[] = [];
+
+        if (item.entities?.media) {
+          item.entities.media.forEach((media: any) => {
+            mediaUrls.push(media.media_url_https || media.media_url);
+            mediaTypes.push(media.type || 'photo');
+          });
+        }
+
+        return {
+          id: item.id_str || String(item.id),
+          text: item.full_text || item.text || '',
+          author_username: item.user?.screen_name || 'unknown',
+          author_name: item.user?.name || 'Unknown',
+          author_profile_image: item.user?.profile_image_url_https || item.user?.profile_image_url || '',
+          created_at: item.created_at || new Date().toISOString(),
+          like_count: item.favorite_count || 0,
+          retweet_count: item.retweet_count || 0,
+          reply_count: item.reply_count || 0,
+          view_count: 0,
+          media_urls: mediaUrls.length > 0 ? mediaUrls : undefined,
+          media_types: mediaTypes.length > 0 ? mediaTypes : undefined
+        };
+      });
 
     return new Response(
       JSON.stringify({ tweets, count: tweets.length }),

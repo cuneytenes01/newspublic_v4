@@ -387,36 +387,54 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
 
         <div className="flex items-center gap-2 flex-wrap justify-end">
           <div className="hidden md:flex items-center gap-3">
-            <div className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 transition-colors cursor-pointer">
+            <a
+              href={`https://twitter.com/${tweet.twitter_users?.username}/status/${tweet.tweet_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-blue-600 transition-colors"
+              title={`${tweet.reply_count} replies`}
+            >
               <MessageCircle className="w-4 h-4" />
               <span className="text-sm font-semibold">{formatNumber(tweet.reply_count)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 transition-colors cursor-pointer">
+            </a>
+            <a
+              href={`https://twitter.com/${tweet.twitter_users?.username}/status/${tweet.tweet_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-green-600 transition-colors"
+              title={`${tweet.retweet_count} retweets`}
+            >
               <Repeat2 className="w-4 h-4" />
               <span className="text-sm font-semibold">{formatNumber(tweet.retweet_count)}</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 transition-colors cursor-pointer">
+            </a>
+            <a
+              href={`https://twitter.com/${tweet.twitter_users?.username}/status/${tweet.tweet_id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 text-gray-600 hover:text-red-600 transition-colors"
+              title={`${tweet.like_count} likes`}
+            >
               <Heart className="w-4 h-4" />
               <span className="text-sm font-semibold">{formatNumber(tweet.like_count)}</span>
-            </div>
+            </a>
           </div>
 
           <button
             onClick={handleAnalyzeSentiment}
             disabled={loadingSentiment}
             aria-label={sentiment ? 'Re-analyze sentiment' : 'Analyze sentiment'}
-            className={`hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
+            className={`hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
               sentiment
                 ? `bg-gradient-to-r ${getSentimentColor()} text-white`
                 : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-purple-500 hover:text-purple-600'
             }`}
           >
             {loadingSentiment ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : sentiment ? (
               getSentimentIcon()
             ) : (
-              <Meh className="w-4 h-4" />
+              <Meh className="w-5 h-5" />
             )}
             <span className="hidden lg:inline">{loadingSentiment ? 'Analiz...' : 'Sentiment'}</span>
           </button>
@@ -425,18 +443,18 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
             onClick={handleToggleBookmark}
             disabled={savingBookmark}
             aria-label={isSaved ? 'Remove from saved' : 'Save tweet'}
-            className={`flex items-center gap-2 px-3 py-1.5 rounded-xl transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md ${
               isSaved
                 ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600'
                 : 'bg-white border-2 border-gray-300 text-gray-700 hover:border-amber-500 hover:text-amber-600'
             }`}
           >
             {savingBookmark ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : isSaved ? (
-              <BookmarkCheck className="w-4 h-4" />
+              <BookmarkCheck className="w-5 h-5" />
             ) : (
-              <Bookmark className="w-4 h-4" />
+              <Bookmark className="w-5 h-5" />
             )}
             <span className="hidden lg:inline">{isSaved ? 'Saved' : 'Save'}</span>
           </button>
@@ -445,12 +463,12 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
             onClick={handleTranslate}
             disabled={loadingTranslation}
             aria-label="Translate tweet"
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
+            className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-500 to-cyan-500 text-white hover:from-blue-600 hover:to-cyan-600 transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
           >
             {loadingTranslation ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Languages className="w-4 h-4" />
+              <Languages className="w-5 h-5" />
             )}
             <span className="hidden lg:inline">Translate</span>
           </button>
@@ -459,12 +477,12 @@ export default function TweetCard({ tweet, onSummarize, onTranslate, onBookmarkC
             onClick={handleSummarize}
             disabled={loadingSummary}
             aria-label="Summarize tweet"
-            className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all text-xs font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
+            className="hidden md:flex items-center gap-2 px-4 py-2.5 rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 text-white hover:from-violet-600 hover:to-fuchsia-600 transition-all text-sm font-semibold disabled:opacity-50 shadow-sm hover:shadow-md"
           >
             {loadingSummary ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
+              <Loader2 className="w-5 h-5 animate-spin" />
             ) : (
-              <Sparkles className="w-4 h-4" />
+              <Sparkles className="w-5 h-5" />
             )}
             <span className="hidden lg:inline">Summarize</span>
           </button>
